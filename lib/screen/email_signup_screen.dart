@@ -1,6 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:untitled2/MainPage.dart';
 import 'package:untitled2/screen/home_screen.dart';
 
 class EmailSignUpScreen extends StatefulWidget{
@@ -66,7 +67,7 @@ class _EmailSignUpState extends State<EmailSignUpScreen>{
     }
     User? user = FirebaseAuth.instance.currentUser;
     if(user!=null && !user.emailVerified) {
-      Navigator.of(context).push(MaterialPageRoute(builder: (context)=>HomeScreen()));
+      Navigator.of(context).push(MaterialPageRoute(builder: (context)=>MainPage()));
     }
   }
 

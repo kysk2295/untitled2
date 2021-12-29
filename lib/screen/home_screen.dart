@@ -304,23 +304,6 @@ class _HomeScreenState extends State<HomeScreen> {
               //Text('음')
 
 
-              // SizedBox(
-              //   height: 100,
-              // ),
-              // Column(
-              //   mainAxisAlignment: MainAxisAlignment.center,
-              //   crossAxisAlignment: CrossAxisAlignment.center,
-              //   children: [
-              //
-              //     Text('${snapshot.data?.email}님 환영합니다.'),
-              //     FlatButton(onPressed: (){
-              //       FirebaseAuth.instance.signOut();
-              //     }
-              //         , child:
-              //         Text('로그아웃'))
-              //   ],
-              //
-              // ),
 
             ],
           ),
