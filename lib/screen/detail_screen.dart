@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dash/flutter_dash.dart';
@@ -15,9 +16,30 @@ class DetailScreen extends StatefulWidget{
 
 class _DetailScreenState extends State<DetailScreen>{
 
-
+  late QueryDocumentSnapshot<Map<String,dynamic>> doc;
   bool flag=true;
   double star=4.0;
+
+
+  @override
+  void initState() {
+    super.initState();
+    FirebaseFirestore.instance.collection('book')
+        .where('title',isEqualTo: widget.book.title)
+        .where('authors',isEqualTo: widget.book.authors)
+        .get().then((value)  {
+      print("ㄴㄴ미ㅏ넝리ㅏㅁ어리머아ㅣ럼ㅇ");
+      widget.book.like_count=value.docs[0]['like_count'];
+      widget.book.like=value.docs[0]['like'];
+      print("ㄴㄴ미ㅏ넝리ㅏㅁ어리머아ㅣ럼ㅇ");
+      doc=value.docs[0];
+    }
+    );
+
+
+    //print("ㄴㄴ미ㅏ넝리ㅏㅁ어리머아ㅣ럼ㅇ");
+  }
+
   @override
   Widget build(BuildContext context) {
     var _buffer = StringBuffer();
@@ -243,7 +265,7 @@ class _DetailScreenState extends State<DetailScreen>{
                 mainAxisAlignment: MainAxisAlignment.center,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-
+                  
                   SizedBox(
                     width: 245,
                     height: 50,
@@ -266,13 +288,34 @@ class _DetailScreenState extends State<DetailScreen>{
                     height: 50,
                     child: ElevatedButton.icon(onPressed: (){
                       setState(() {
-                        flag=!flag;
+                        widget.book.like=!widget.book.like;
+                        doc.reference.update({'like':widget.book.like});
+
+                            if(widget.book.like) {
+                              widget.book.like_count++;
+                            }
+                            else{
+                              widget.book.like_count--;
+                            }
+                        doc.reference.update({'like_count':widget.book.like_count});
+
+
+                        // if(snapshot.docs.isNotEmpty){
+                        //   snapshot.docs.forEach((element) {
+                        //     element.reference.update({'like':flag});
+                        //     if(!widget.book.like)
+                        //       element.reference.update({'like_count':widget.book.like_count+1});
+                        //     else
+                        //       element.reference.update({'like_count':widget.book.like_count});
+                        //   });
+                        // }
+
                       });
-                    }, icon: flag?Icon(Icons.favorite):Icon(Icons.favorite,color: Colors.red,),
+                    }, icon: !widget.book.like?Icon(Icons.favorite):Icon(Icons.favorite,color: Colors.red,),
                         label: Padding(
                           padding: EdgeInsets.only(bottom: 1),
                           child: Text("찜",style: TextStyle(
-                            color: flag?Colors.white:Colors.red,
+                            color:!widget.book.like? Colors.white:Colors.red,
                             fontSize: 14,
                             fontFamily: "Roboto",
                             fontWeight: FontWeight.w500,
@@ -280,7 +323,7 @@ class _DetailScreenState extends State<DetailScreen>{
                           ),),
                         ),
                     style: ElevatedButton.styleFrom(
-                      primary: flag?Colors.grey:Colors.white
+                      primary: !widget.book.like?Colors.grey:Colors.white
                     ),)
                   ),
 

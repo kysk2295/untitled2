@@ -2,8 +2,8 @@ class Book {
   final List<String> authors;
   final String contents;
   final List<String> havers;
-  final bool like;
-  final int like_count;
+  late bool like;
+  late int like_count;
   final String publisher;
   final String title;
   final String imgUrl;
