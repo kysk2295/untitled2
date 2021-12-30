@@ -1,9 +1,14 @@
+import 'dart:async';
+import 'dart:ui';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dash/flutter_dash.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:smooth_star_rating/smooth_star_rating.dart';
 import 'package:untitled2/model/Book.dart';
+import 'package:untitled2/screen/chat_screen.dart';
 
 class DetailScreen extends StatefulWidget{
   final Book book;
@@ -49,6 +54,7 @@ class _DetailScreenState extends State<DetailScreen>{
 
     // TODO: implement build
     return Scaffold(
+      backgroundColor: !flag?Colors.grey.shade400:Colors.white,
       body: Column(
         //mainAxisSize: MainAxisSize.max,
           children: [
@@ -84,7 +90,12 @@ class _DetailScreenState extends State<DetailScreen>{
                             ),
                           ],
                         ),
-                        child: Image.network(widget.book.imgUrl),
+                        child: !flag?ClipRRect(
+                          child: ImageFiltered(
+                            imageFilter: ImageFilter.blur(sigmaX: 2, sigmaY: 2),
+                            child: Image.network(widget.book.imgUrl),
+                          ),
+                        ):Image.network(widget.book.imgUrl),
                       ),
                     ),
                     Padding(
@@ -115,41 +126,55 @@ class _DetailScreenState extends State<DetailScreen>{
                         ),
                       ),
                     ),
-                    Padding(
-                      padding: EdgeInsets.only(top: 10),
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          SmoothStarRating(
-                              allowHalfRating: true,
-                              onRated: (v) {
-                              },
-                              starCount: 5,
-                              rating: star,
-                              size: 25.0,
-                              isReadOnly:true,
-                              filledIconData: Icons.star,
-                              halfFilledIconData: Icons.star_half,
-                              defaultIconData: Icons.star,
-                              color: Color(0xff5D5FEF),
-                              borderColor: Colors.grey,
-                              spacing:0.0
+                    Stack(
+                      children: [
+                        !flag?SpinKitPouringHourGlass(
+
+                          color: Colors.yellow,
+                          duration: Duration(seconds: 1),
+
+                        ):SizedBox(),
+                        Padding(
+                          padding: EdgeInsets.only(top: 10),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.max,
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              SmoothStarRating(
+                                  allowHalfRating: true,
+                                  onRated: (v) {
+                                  },
+                                  starCount: 5,
+                                  rating: star,
+                                  size: 25.0,
+                                  isReadOnly:true,
+                                  filledIconData: Icons.star,
+                                  halfFilledIconData: Icons.star_half,
+                                  defaultIconData: Icons.star,
+                                  color: Color(0xff5D5FEF),
+                                  borderColor: Colors.grey,
+                                  spacing:0.0
+                              ),
+
+                              SizedBox(width: 5,),
+                              Text(star.toString(),
+                                style: TextStyle(color:Color(0xff5D5FEF), fontSize: 14, fontWeight: FontWeight.bold ),),
+
+
+
+                            ],
                           ),
-
-                          SizedBox(width: 5,),
-                          Text(star.toString(),
-                          style: TextStyle(color:Color(0xff5D5FEF), fontSize: 14, fontWeight: FontWeight.bold ),),
-
-
-
-                        ],
-                      ),
+                        ),
+                      ],
                     ),
-                    SizedBox(height: 40,),
+
+                    SizedBox(height: 20,),
                     Dash(length: 300, dashColor: Colors.grey,
                       direction: Axis.horizontal,
                     dashLength: 3,),
+
+
+
                     Padding(
                       padding: EdgeInsets.fromLTRB(30, 30, 30, 0),
                       child: Row(children: [
@@ -227,7 +252,7 @@ class _DetailScreenState extends State<DetailScreen>{
 
                               ],
                             ),
-                        
+
                         Padding(
                           padding: EdgeInsets.fromLTRB(30, 10, 0, 0),
                           child: Row(
@@ -239,8 +264,20 @@ class _DetailScreenState extends State<DetailScreen>{
                             ]
                           ),
                         ),
+                    Padding(
+                      padding: EdgeInsets.fromLTRB(30, 30, 30, 0),
+                      child: Row(children: [
+                        Text("Publisher", style: TextStyle(fontSize: 16,fontWeight: FontWeight.bold),)
+                      ]),
+                    ),
 
-                        Padding(
+
+                    Padding(
+                        padding: EdgeInsets.fromLTRB(30, 15, 0,0),
+                        child: Row(children: [Text(widget.book.publisher)])),
+
+
+                    Padding(
                           padding: EdgeInsets.fromLTRB(30, 30, 30, 0),
                           child: Row(children: [
                             Text("About", style: TextStyle(fontSize: 16,fontWeight: FontWeight.bold),)
@@ -269,7 +306,20 @@ class _DetailScreenState extends State<DetailScreen>{
                   SizedBox(
                     width: 245,
                     height: 50,
-                    child: ElevatedButton(onPressed: (){}, child: Text('빌리기',
+                    child: ElevatedButton(onPressed: flag?(){
+
+                      setState(() {
+                        flag=!flag;
+                        Timer(Duration(seconds: 3),(){
+                          Navigator.of(context).push(MaterialPageRoute(builder: (context)
+                          => ChatScreen()));
+                          flag=!flag;
+                        });
+
+                      });
+
+                    //  LinearProgressIndicator();
+                    }:null, child: Text('빌리기',
                       style: TextStyle(
                         color: Colors.white,
                         fontSize: 14,
@@ -286,7 +336,7 @@ class _DetailScreenState extends State<DetailScreen>{
                   SizedBox(
                     width: 80,
                     height: 50,
-                    child: ElevatedButton.icon(onPressed: (){
+                    child: ElevatedButton.icon(onPressed: flag?(){
                       setState(() {
                         widget.book.like=!widget.book.like;
                         doc.reference.update({'like':widget.book.like});
@@ -311,7 +361,7 @@ class _DetailScreenState extends State<DetailScreen>{
                         // }
 
                       });
-                    }, icon: !widget.book.like?Icon(Icons.favorite):Icon(Icons.favorite,color: Colors.red,),
+                    }:null, icon: !widget.book.like?Icon(Icons.favorite):Icon(Icons.favorite,color: Colors.red,),
                         label: Padding(
                           padding: EdgeInsets.only(bottom: 1),
                           child: Text("찜",style: TextStyle(

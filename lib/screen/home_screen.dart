@@ -128,8 +128,9 @@ class _HomeScreenState extends State<HomeScreen> {
 
     return Scaffold(
         body:
-        SingleChildScrollView(
-          child: Column(
+        ListView(
+          scrollDirection: Axis.vertical,
+          children: [Column(
             children: [
               Container(
                 color: Colors.transparent,
@@ -226,7 +227,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   //파이어베이스 데이터를 읽을 때 streambuilder 사용한다.
                   child: StreamBuilder<QuerySnapshot>(
                     stream: FirebaseFirestore.instance.collection('category')
-                        .snapshots(),
+                        .limit(3).snapshots(),
                     builder: (BuildContext context,
                         AsyncSnapshot<QuerySnapshot> snapshot) {
                       if (!snapshot.hasData) {
@@ -263,7 +264,7 @@ class _HomeScreenState extends State<HomeScreen> {
               SizedBox(height: 20,),
               SizedBox(
                 child: StreamBuilder<QuerySnapshot>(
-                  stream: FirebaseFirestore.instance.collection('book').snapshots(),
+                  stream: FirebaseFirestore.instance.collection('book').orderBy("like_count",descending: true).limit(6).snapshots(),
                   builder: (BuildContext context,AsyncSnapshot<QuerySnapshot> snapshot){
                     if(!snapshot.hasData)
                       return CircularProgressIndicator();
@@ -309,6 +310,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
             ],
           ),
+    ]
         )
 
     );
