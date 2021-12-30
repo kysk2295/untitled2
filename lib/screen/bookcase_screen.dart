@@ -11,6 +11,8 @@ import 'package:flutter_barcode_scanner/flutter_barcode_scanner.dart';
 import 'package:untitled2/model/Book.dart';
 import 'package:http/http.dart' as http;
 
+import 'detail_screen.dart';
+
 class BookCaseScreen extends StatefulWidget{
   _BookCaseScreenState createState()=> _BookCaseScreenState();
 }
@@ -393,7 +395,12 @@ List<Widget> makehavingImages(BuildContext context, List<Book> data) {
     });
 
     _result.add(InkWell(
-      onTap: (){},
+      onTap: (){
+        Navigator.of(context).push(MaterialPageRoute(builder: (context)=>
+            DetailScreen(book: data[i])
+
+        ));
+        },
       child: Column(
         //mainAxisSize: MainAxisSize.min,
         // mainAxisAlignment: MainAxisAlignment.end,

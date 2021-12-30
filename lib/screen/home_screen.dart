@@ -7,6 +7,7 @@ import 'package:flutter/rendering.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:untitled2/model/Book.dart';
 import 'package:untitled2/model/Category.dart';
+import 'package:untitled2/screen/detail_screen.dart';
 
 import 'package:untitled2/screen/login_screen.dart';
 import 'dart:convert';
@@ -288,6 +289,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       child: GridView.count(crossAxisCount: 3,
                         padding: EdgeInsets.all(5),
                         children: makePopularImages(context, data),
+                        //상위 리스트 위젯이 별도로 있다면 true로 설정해줘야지 스크롤이 가능함
                         shrinkWrap: true,
                         physics: ScrollPhysics(),
                         scrollDirection: Axis.vertical,
@@ -346,7 +348,12 @@ List<Widget> makePopularImages(BuildContext context, List<Book> data) {
     });
 
     _result.add(InkWell(
-      onTap: (){},
+      onTap: (){
+        Navigator.of(context).push(MaterialPageRoute(builder: (context)=>
+            DetailScreen(book: data[i])
+        ));
+        print(buffer.toString());
+      },
                 child: Column(
                    //mainAxisSize: MainAxisSize.min,
                   // mainAxisAlignment: MainAxisAlignment.end,
