@@ -10,6 +10,14 @@ class _ChatScreenState extends State<ChatScreen>{
     // TODO: implement build
     return
         Scaffold(
+          appBar: AppBar(
+            title: Text('채팅',style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold),),
+            backgroundColor: Colors.white,
+            actions: [
+              IconButton(onPressed: (){}, icon: Icon(Icons.search,color: Colors.black,))
+            ],
+
+          ),
           body: Text('chat Screen'),
         );
   }
