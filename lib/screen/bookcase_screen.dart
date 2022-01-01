@@ -31,81 +31,81 @@ class _BookCaseScreenState extends State<BookCaseScreen>{
     return Scaffold(
       body: SingleChildScrollView(
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Padding(
-              padding: EdgeInsets.fromLTRB(30, 70, 35, 5),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text("My Books", style: TextStyle(color: Colors.black,fontSize: 20,fontFamily: "Roboto", fontWeight: FontWeight.w700,letterSpacing: 1.25),),
-                  Container(
-                      width:18,
-                      height: 18
-                      ,child: ImageIcon(AssetImage('images/search.png'),color: Color(0xffcccccc))),
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Padding(
+                padding: EdgeInsets.fromLTRB(30, 70, 35, 5),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text("My Books", style: TextStyle(color: Colors.black,fontSize: 20,fontFamily: "Roboto", fontWeight: FontWeight.w700,letterSpacing: 1.25),),
+                    Container(
+                        width:18,
+                        height: 18
+                        ,child: ImageIcon(AssetImage('images/search.png'),color: Color(0xffcccccc))),
 
-                ],
+                  ],
+                ),
+
               ),
-
-            ),
-            Padding(
-              padding: EdgeInsets.fromLTRB(30, 40, 0, 0),
-              child: Text("having",style: TextStyle(color:Colors.black, 
-              fontSize: 16, fontWeight: FontWeight.normal), ),
-            ),
-            Container(
-              margin: EdgeInsets.only(left: 35, top: 10),
-              height: 2,
-              width: 30,
-              color: Colors.red,
-            ),
-            SizedBox(height: 20,),
-
-            SizedBox(
-              child: StreamBuilder<QuerySnapshot>(
-                stream: FirebaseFirestore.instance.collection('book').where("havers",arrayContains: user!.uid.toString()).snapshots(),
-                builder: (BuildContext context,AsyncSnapshot<QuerySnapshot> snapshot){
-                  if(!snapshot.hasData)
-                    return Center(child: Text('등록되어 있는 책이 없습니다.'),);
-                  data.clear();
-                  for(var i =0;i<snapshot.data!.docs.length;i++){
-                    var a = snapshot.data!.docs[i];
-                    List<dynamic> son = a['authors'];
-                    List<dynamic> kane = a['havers'];
-                    Book book = new Book(
-                        son.cast<String>(),
-                        a['contents'],
-                        kane.cast<String>(),
-                        a['publisher'],
-                        a['title'],
-                        a['imgUrl'],
-                        a['like'],
-                        a['like_count'],
-                        a['possible']);
-                    data.add(book);
-                  }
-
-                  return Expanded(
-                    child: GridView.count(crossAxisCount: 3,
-                      padding: EdgeInsets.only(left: 20,top: 10,right: 10,bottom: 10),
-                      children: makehavingImages(context, data),
-                      shrinkWrap: true,
-                      physics: ScrollPhysics(),
-                      scrollDirection: Axis.vertical,
-                      mainAxisSpacing: 30,
-                      childAspectRatio: (1 / 1.5),
-                      primary: false,
-
-                    ),
-                  );
-                },
+              Padding(
+                padding: EdgeInsets.fromLTRB(30, 40, 0, 0),
+                child: Text("having",style: TextStyle(color:Colors.black,
+                    fontSize: 16, fontWeight: FontWeight.normal), ),
               ),
-            )
-
-          ]
+              Container(
+                margin: EdgeInsets.only(left: 35, top: 10),
+                height: 2,
+                width: 30,
+                color: Colors.red,
               ),
+              SizedBox(height: 20,),
 
-            ),
+              SizedBox(
+                child: StreamBuilder<QuerySnapshot>(
+                  stream: FirebaseFirestore.instance.collection('book').where("havers",arrayContains: user!.uid.toString()).snapshots(),
+                  builder: (BuildContext context,AsyncSnapshot<QuerySnapshot> snapshot){
+                    if(!snapshot.hasData)
+                      return Center(child: Text('등록되어 있는 책이 없습니다.'),);
+                    data.clear();
+                    for(var i =0;i<snapshot.data!.docs.length;i++){
+                      var a = snapshot.data!.docs[i];
+                      List<dynamic> son = a['authors'];
+                      List<dynamic> kane = a['havers'];
+                      Book book = new Book(
+                          son.cast<String>(),
+                          a['contents'],
+                          kane.cast<String>(),
+                          a['publisher'],
+                          a['title'],
+                          a['imgUrl'],
+                          a['like'],
+                          a['like_count'],
+                          a['possible']);
+                      data.add(book);
+                    }
+
+                    return Expanded(
+                      child: GridView.count(crossAxisCount: 3,
+                        padding: EdgeInsets.only(left: 20,top: 10,right: 10,bottom: 10),
+                        children: makehavingImages(context, data),
+                        shrinkWrap: true,
+                        physics: ScrollPhysics(),
+                        scrollDirection: Axis.vertical,
+                        mainAxisSpacing: 30,
+                        childAspectRatio: (1 / 1.5),
+                        primary: false,
+
+                      ),
+                    );
+                  },
+                ),
+              )
+
+            ]
+        ),
+
+      ),
 
       floatingActionButton: Padding(
         padding: EdgeInsets.all(10),
@@ -134,16 +134,16 @@ class _BookCaseScreenState extends State<BookCaseScreen>{
   Future scan() async{
     String barcodeScanRes;
     try{
-     barcodeScanRes = await FlutterBarcodeScanner.scanBarcode(
+      barcodeScanRes = await FlutterBarcodeScanner.scanBarcode(
           '#ff6666',
           'Cancel',
           true,
           ScanMode.BARCODE);
-     setState(() {
-       _scanBarcode=barcodeScanRes;
-       getJSONData(_scanBarcode).whenComplete(() => _showRegisterDialog());
-       print(_scanBarcode);
-     });
+      setState(() {
+        _scanBarcode=barcodeScanRes;
+        getJSONData(_scanBarcode).whenComplete(() => _showRegisterDialog());
+        print(_scanBarcode);
+      });
 
 
     } on PlatformException{
@@ -211,133 +211,130 @@ class _BookCaseScreenState extends State<BookCaseScreen>{
   void _isbnInputDialog() async{
 
     showDialog(context: context, barrierDismissible: false,
-    builder: (BuildContext context){
-      return AlertDialog(
-        title: Text('책 isbn 입력'),
-        content: TextField(
-          controller: _textFieldController,
-          onChanged: (value){
+        builder: (BuildContext context){
+          return AlertDialog(
+            title: Text('책 isbn 입력'),
+            content: TextField(
+              controller: _textFieldController,
+              onChanged: (value){
 
-          },
-          textInputAction: TextInputAction.go,
-          keyboardType: TextInputType.number,
-          decoration: InputDecoration(hintText: "isbn을 입력하세요"),
-        ),
-        actions: [
-          ElevatedButton(onPressed: (){
+              },
+              textInputAction: TextInputAction.go,
+              keyboardType: TextInputType.number,
+              decoration: InputDecoration(hintText: "isbn을 입력하세요"),
+            ),
+            actions: [
+              TextButton(onPressed: (){
 
-            setState(() {
-              getJSONData(_textFieldController.text).whenComplete(() {
+                setState(() {
+                  getJSONData(_textFieldController.text).whenComplete(() {
+                    Navigator.of(context).pop(true);
+                    _showRegisterDialog();
+                    _textFieldController.text="";
+                  });
+                });
+
+              }, child:
+              Text('확인'),),
+              TextButton(onPressed: (){
                 Navigator.of(context).pop(true);
-                _showRegisterDialog();
                 _textFieldController.text="";
-              });
-            });
+              }, child:
+              Text('취소')),
 
-          }, child:
-          Text('확인')),
-          ElevatedButton(onPressed: (){
-            Navigator.of(context).pop(true);
-            _textFieldController.text="";
-          }, child:
-          Text('취소')),
-
-        ],
-      );
-    });
+            ],
+          );
+        });
   }
 
   void _showSimpleDialog() {
     showDialog(context: context,
-    builder: (BuildContext context){
-      return SimpleDialog(
-        title: Text('책 등록'),
-        children: [
-          SimpleDialogOption(onPressed: (){
-            Navigator.of(context).pop(true);
-            _isbnInputDialog();
-          },
-          child: const Text('isbn 직접입력'),),
-          SimpleDialogOption(onPressed: (){
-            Navigator.of(context).pop(true);
-            scan();
-          },
-          child: const Text('바코드 스캐너'),)
-        ],
-      );
-    });
+        builder: (BuildContext context){
+          return SimpleDialog(
+            title: Text('책 등록'),
+            children: [
+              SimpleDialogOption(onPressed: (){
+                Navigator.of(context).pop(true);
+                _isbnInputDialog();
+              },
+                child: const Text('isbn 직접 입력'),),
+              SimpleDialogOption(onPressed: (){
+                Navigator.of(context).pop(true);
+                scan();
+              },
+                child: const Text('바코드 스캐너'),)
+            ],
+          );
+        });
   }
 
 
   void _showRegisterDialog() {
     showDialog(context: context,
         barrierDismissible: false, builder: (BuildContext context) {
-      return CupertinoAlertDialog(
-        title: Text('책 등록'),
-        content: Padding(
-          padding: EdgeInsets.all(10),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Container(
-                width: 80,
-                height: 100,
-                decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(5),
-                ),
-                child: Image.network(data[0].imgUrl),
+          return CupertinoAlertDialog(
+            title: Text('책 등록'),
+            content: Padding(
+              padding: EdgeInsets.all(10),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Container(
+                    width: 80,
+                    height: 100,
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(5),
+                    ),
+                    child: Image.network(data[0].imgUrl),
+                  ),
+                  Padding(
+                    padding: EdgeInsets.only(left: 10),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+
+                        Padding(
+                          padding: const EdgeInsets.only(bottom: 3),
+                          child: Text(data[0].title.length > 8 ? data[0].title.substring(0,8)+"...":data[0].title, style: TextStyle(color: Colors.black,fontSize: 16,fontWeight: FontWeight.bold)
+                          ),
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.only(bottom: 0),
+                          child: Text(getText().length >7 ? getText().substring(0,7)+'...':getText().substring(0,getText().length-1), style: TextStyle(color: Colors.grey,fontSize: 14),),
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.only(bottom: 10),
+                          child: Text(data[0].publisher, style: TextStyle(color: Colors.grey,fontSize: 14),),
+                        ),
+                      ],
+                    ),
+                  )
+                ],
               ),
-              Padding(
-                padding: EdgeInsets.only(left: 10),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
+            ),
+            actions: [
+              FlatButton(
+                textColor: Colors.black,
+                onPressed: () {
+                  Navigator.of(context).pop(true);
+                },
+                child: Text('취소'),
+              ),
+              FlatButton(
+                textColor: Colors.black,
+                onPressed: () {
+                  if(data.isNotEmpty)
+                  {
+                    _registerBook();
+                    print("go hereadf");
+                    print(data[0].title);
+                  }
 
-                    Padding(
-                      padding: const EdgeInsets.only(bottom: 3),
-                      child: Text(data[0].title.length > 8 ? data[0].title.substring(0,8)+"...":data[0].title, style: TextStyle(color: Colors.black,fontSize: 16,fontWeight: FontWeight.bold)
-                      ),
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.only(bottom: 0),
-                      child: Text(getText().length >7 ? getText().substring(0,7)+'...':getText().substring(0,getText().length-1), style: TextStyle(color: Colors.grey,fontSize: 14),),
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.only(bottom: 10),
-                      child: Text(data[0].publisher, style: TextStyle(color: Colors.grey,fontSize: 14),),
-                    ),
-                  ],
-                ),
-              )
-            ],
-          ),
-        ),
-        actions: [
-          FlatButton(
-            textColor: Colors.black,
-            onPressed: () {
-              Navigator.of(context).pop(true);
-            },
-            child: Text('취소'),
-          ),
-          FlatButton(
-            textColor: Colors.black,
-            onPressed: () {
-              if(data.isNotEmpty)
-                {
-                  _registerBook();
-                  print("go hereadf");
-                  print(data[0].title);
-                }
-
-
-
-
-            },
-            child: Text('확인'),
-          ),
-        ],);
-    });
+                },
+                child: Text('확인'),
+              ),
+            ],);
+        });
   }
 
   String getText() {
@@ -356,10 +353,13 @@ class _BookCaseScreenState extends State<BookCaseScreen>{
         .where('title',isEqualTo: data[0].title).where('authors',isEqualTo: data[0].authors).get();
 
     print(data[0].title);
+    //이미 책이 등록되어 있으면
     if(snapshot.docs.isNotEmpty){
       print("go here2");
       snapshot.docs.forEach((element) {
+        //havers에 uid 추가해주고 책 빌릴 수 있게 update 해준다.
         element.reference.update({"havers":FieldValue.arrayUnion([user!.uid.toString()])});
+        element.reference.update({"possible":true});
         Navigator.of(context).pop(true);
       });
     }
@@ -400,7 +400,7 @@ List<Widget> makehavingImages(BuildContext context, List<Book> data) {
             DetailScreen(book: data[i])
 
         ));
-        },
+      },
       child: Column(
         //mainAxisSize: MainAxisSize.min,
         // mainAxisAlignment: MainAxisAlignment.end,

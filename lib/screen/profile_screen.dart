@@ -42,7 +42,12 @@ class _ProfileScreenState extends State<ProfileScreen>{
             child: Text("koyunseo",style: TextStyle(
               fontWeight: FontWeight.bold,color: Colors.black
             ),),
+
           ),
+          TextButton(onPressed: (){
+            FirebaseAuth.instance.signOut();
+          }, child: Text('로그아웃'))
+
 
         ],
       ),

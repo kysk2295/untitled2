@@ -18,6 +18,7 @@ class LoginScreen extends StatelessWidget{
       accessToken: googleAuth?.accessToken,
       idToken: googleAuth?.idToken,
     );
+    //구글 로그인 추가
 
     // Once signed in, return the UserCredential
     return await FirebaseAuth.instance.signInWithCredential(credential);

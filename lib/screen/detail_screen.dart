@@ -1,13 +1,18 @@
 import 'dart:async';
+import 'dart:math';
 import 'dart:ui';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dash/flutter_dash.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:smooth_star_rating/smooth_star_rating.dart';
 import 'package:untitled2/model/Book.dart';
+import 'package:untitled2/model/ChatRooms.dart';
 import 'package:untitled2/screen/chat_screen.dart';
 
 class DetailScreen extends StatefulWidget{
@@ -23,7 +28,10 @@ class _DetailScreenState extends State<DetailScreen>{
 
   late QueryDocumentSnapshot<Map<String,dynamic>> doc;
   bool flag=true;
+  bool borrowPossible=false;
   double star=4.0;
+  late String title;
+  late List<dynamic> havers=[];
 
 
   @override
@@ -33,13 +41,29 @@ class _DetailScreenState extends State<DetailScreen>{
         .where('title',isEqualTo: widget.book.title)
         .where('authors',isEqualTo: widget.book.authors)
         .get().then((value)  {
-      print("ㄴㄴ미ㅏ넝리ㅏㅁ어리머아ㅣ럼ㅇ");
+
       widget.book.like_count=value.docs[0]['like_count'];
       widget.book.like=value.docs[0]['like'];
-      print("ㄴㄴ미ㅏ넝리ㅏㅁ어리머아ㅣ럼ㅇ");
+      title=value.docs[0]['title'];
       doc=value.docs[0];
+      borrowPossible=value.docs[0]['possible'];
+      havers=value.docs[0]['havers'];
+      print("adfasdfa");
+      setState(() {
+        //possible이 false인 경우
+        //havers의 리스트에 자신의 uid가 있으면 true, 없으면 false를 반환한다.
+        if(!borrowPossible){
+          borrowPossible=!havers.contains(FirebaseAuth.instance.currentUser?.uid.toString());
+          print(borrowPossible);
+
+        }
+      });
     }
+
     );
+
+
+
 
 
     //print("ㄴㄴ미ㅏ넝리ㅏㅁ어리머아ㅣ럼ㅇ");
@@ -57,10 +81,10 @@ class _DetailScreenState extends State<DetailScreen>{
       backgroundColor: !flag?Colors.grey.shade400:Colors.white,
       body: Column(
         //mainAxisSize: MainAxisSize.max,
-          children: [
-           Expanded(
-             child: ListView(
-               scrollDirection: Axis.vertical,
+        children: [
+          Expanded(
+            child: ListView(
+                scrollDirection: Axis.vertical,
                 shrinkWrap: true,
                 children: [Column(
                   mainAxisAlignment: MainAxisAlignment.center,
@@ -69,11 +93,11 @@ class _DetailScreenState extends State<DetailScreen>{
                     Row(
                         children:[
                           Padding(padding: EdgeInsets.fromLTRB(10,30,10,10),
-                          child: IconButton(onPressed:(){
-                            Navigator.of(context).pop(true);
-                          } , icon: Icon(Icons.arrow_back)),
-                      ),
-                      ]
+                            child: IconButton(onPressed:(){
+                              Navigator.of(context).pop(true);
+                            } , icon: Icon(Icons.arrow_back)),
+                          ),
+                        ]
                     ),
                     Padding(
                       padding: EdgeInsets.only(top: 50),
@@ -101,8 +125,8 @@ class _DetailScreenState extends State<DetailScreen>{
                     Padding(
                       padding: EdgeInsets.only(top: 20),
                       child: Text(
-                       widget.book.title.length > 15 ? widget.book.title.substring(0,15)+"\n"+
-                           widget.book.title.substring(16,widget.book.title.length):widget.book.title,
+                        widget.book.title.length > 15 ? widget.book.title.substring(0,15)+"\n"+
+                            widget.book.title.substring(16,widget.book.title.length):widget.book.title,
                         textAlign: TextAlign.center,
                         style: const TextStyle(
                           color: Colors.black,
@@ -115,7 +139,7 @@ class _DetailScreenState extends State<DetailScreen>{
                       ),
                     ),
                     Padding(
-                        padding: EdgeInsets.only(top: 15),
+                      padding: EdgeInsets.only(top: 15),
                       child: Text(
                         _buffer.toString().substring(0,_buffer.length-1),
                         textAlign: TextAlign.center,
@@ -128,12 +152,6 @@ class _DetailScreenState extends State<DetailScreen>{
                     ),
                     Stack(
                       children: [
-                        !flag?SpinKitPouringHourGlass(
-
-                          color: Colors.yellow,
-                          duration: Duration(seconds: 1),
-
-                        ):SizedBox(),
                         Padding(
                           padding: EdgeInsets.only(top: 10),
                           child: Row(
@@ -164,14 +182,22 @@ class _DetailScreenState extends State<DetailScreen>{
 
                             ],
                           ),
+
                         ),
+                        !flag?SpinKitPouringHourGlass(
+
+                          color: Colors.yellow,
+                          duration: Duration(seconds: 1),
+
+                        ):SizedBox(),
+
                       ],
                     ),
 
                     SizedBox(height: 20,),
                     Dash(length: 300, dashColor: Colors.grey,
                       direction: Axis.horizontal,
-                    dashLength: 3,),
+                      dashLength: 3,),
 
 
 
@@ -182,88 +208,88 @@ class _DetailScreenState extends State<DetailScreen>{
                       ]),
                     ),
 
-                          //Row는 하위 항목에 non -flexible위젯의 고유 크기를 아는 우젯이 들어가야 한다.
+                    //Row는 하위 항목에 non -flexible위젯의 고유 크기를 아는 우젯이 들어가야 한다.
                     // //그래서 고유크기를 모르는 위젯의 경우 flexible로 만ㄷ르어줘야한다.
 
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.start,
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      mainAxisSize: MainAxisSize.max,
+                      children: [
+                        Flexible(
+                          child: Container(
+                              height: 50,
+                              padding: EdgeInsets.fromLTRB(30, 10, 0, 0),
+                              width: widget.book.havers.length==1 ? (widget.book.havers.length+1)*40:60+widget.book.havers.length*20 ,
+                              child:Stack(
+                                  children: List.generate(widget.book.havers.length, (index) => Positioned(
+                                    left: index*20,
+                                    child: Container(
+                                      height: 40,
+                                      width: 40,
+                                      decoration: BoxDecoration(
+                                        color: index.isEven ? Colors.black : Colors.grey,
+                                        shape: BoxShape.circle,
+                                      ),
+                                    ),
+                                  ))
+                              )
+                          ),),
+
+                        Positioned(
+                          child: Padding(
+                            padding: EdgeInsets.only(top: 7),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              mainAxisAlignment: MainAxisAlignment.start,
                               crossAxisAlignment: CrossAxisAlignment.center,
-                              mainAxisSize: MainAxisSize.max,
-                              children: [
-                                Flexible(
-                                  child: Container(
-                                      height: 50,
-                                      padding: EdgeInsets.fromLTRB(30, 10, 0, 0),
-                                      width: widget.book.havers.length==1 ? (widget.book.havers.length+1)*40:60+widget.book.havers.length*20 ,
-                                      child:Stack(
-                                          children: List.generate(widget.book.havers.length, (index) => Positioned(
-                                            left: index*20,
-                                            child: Container(
-                                              height: 40,
-                                              width: 40,
-                                              decoration: BoxDecoration(
-                                                color: index.isEven ? Colors.black : Colors.grey,
-                                                shape: BoxShape.circle,
-                                              ),
-                                            ),
-                                          ))
-                                      )
-                                  ),),
-
-                                       Positioned(
-                                         child: Padding(
-                                           padding: EdgeInsets.only(top: 7),
-                                           child: Row(
-                                               mainAxisSize: MainAxisSize.min,
-                                                mainAxisAlignment: MainAxisAlignment.start,
-                                                crossAxisAlignment: CrossAxisAlignment.center,
-                                                children:[
-                                                Container(
-                                                  width: 3,
-                                                  height: 3,
-                                                  decoration: BoxDecoration(
-                                                    shape: BoxShape.circle,
-                                                    color: Color(0xffc4c4c4),
-                                                  ),
-                                                ),
-                                                SizedBox(width: 2),
-                                                Container(
-                                                  width: 3,
-                                                  height: 3,
-                                                  decoration: BoxDecoration(
-                                                    shape: BoxShape.circle,
-                                                    color: Color(0xffc4c4c4),
-                                                  ),
-                                                ),
-                                                SizedBox(width: 2),
-                                                Container(
-                                                  width: 3,
-                                                  height: 3,
-                                                  decoration: BoxDecoration(
-                                                    shape: BoxShape.circle,
-                                                    color: Color(0xffc4c4c4),
-                                                  ),
-                                                ),
-                                              ],
-                                            ),
-                                         ),
-                                       ),
-
-
+                              children:[
+                                Container(
+                                  width: 3,
+                                  height: 3,
+                                  decoration: BoxDecoration(
+                                    shape: BoxShape.circle,
+                                    color: Color(0xffc4c4c4),
+                                  ),
+                                ),
+                                SizedBox(width: 2),
+                                Container(
+                                  width: 3,
+                                  height: 3,
+                                  decoration: BoxDecoration(
+                                    shape: BoxShape.circle,
+                                    color: Color(0xffc4c4c4),
+                                  ),
+                                ),
+                                SizedBox(width: 2),
+                                Container(
+                                  width: 3,
+                                  height: 3,
+                                  decoration: BoxDecoration(
+                                    shape: BoxShape.circle,
+                                    color: Color(0xffc4c4c4),
+                                  ),
+                                ),
                               ],
                             ),
-
-                        Padding(
-                          padding: EdgeInsets.fromLTRB(30, 10, 0, 0),
-                          child: Row(
-                            children:[ Text('${widget.book.havers.length} users have this book.',style: TextStyle(
-                              color: Color(0xff5d5fef),
-                              fontSize: 12,
-                              letterSpacing: 1.25,
-                            ),),
-                            ]
                           ),
                         ),
+
+
+                      ],
+                    ),
+
+                    Padding(
+                      padding: EdgeInsets.fromLTRB(30, 10, 0, 0),
+                      child: Row(
+                          children:[ Text('${widget.book.havers.length} users have this book.',style: TextStyle(
+                            color: Color(0xff5d5fef),
+                            fontSize: 12,
+                            letterSpacing: 1.25,
+                          ),),
+                          ]
+                      ),
+                    ),
                     Padding(
                       padding: EdgeInsets.fromLTRB(30, 30, 30, 0),
                       child: Row(children: [
@@ -278,62 +304,99 @@ class _DetailScreenState extends State<DetailScreen>{
 
 
                     Padding(
-                          padding: EdgeInsets.fromLTRB(30, 30, 30, 0),
-                          child: Row(children: [
-                            Text("About", style: TextStyle(fontSize: 16,fontWeight: FontWeight.bold),)
-                          ]),
-                        ),
+                      padding: EdgeInsets.fromLTRB(30, 30, 30, 0),
+                      child: Row(children: [
+                        Text("About", style: TextStyle(fontSize: 16,fontWeight: FontWeight.bold),)
+                      ]),
+                    ),
 
 
-                        Padding(
-                            padding: EdgeInsets.fromLTRB(30, 10, 30,0),
-                            child: Text(widget.book.contents))
+                    Padding(
+                        padding: EdgeInsets.fromLTRB(30, 10, 30,0),
+                        child: Text(widget.book.contents))
 
 
 
                   ],
                 ),
-      ]
-              ),
-           ),
-            Padding(
-              padding: EdgeInsets.only(bottom: 20),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  
-                  SizedBox(
-                    width: 245,
-                    height: 50,
-                    child: ElevatedButton(onPressed: flag?(){
+                ]
+            ),
+          ),
+          Padding(
+            padding: EdgeInsets.only(bottom: 20),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
 
-                      setState(() {
-                        flag=!flag;
-                        Timer(Duration(seconds: 3),(){
+                SizedBox(
+                  width: 245,
+                  height: 50,
+                  child: ElevatedButton(onPressed: flag?(){
+
+                    setState(() {
+                      flag=!flag;
+                      Timer(Duration(seconds: 3),(){
+                        print(borrowPossible);
+                        if(borrowPossible)
+                        {
+                          String? chatName;
+                          var timeZoneOffset = DateTime.now().timeZoneOffset.inMilliseconds;
+                          var localTimestamp = (DateTime.now().millisecondsSinceEpoch + timeZoneOffset);
+                          //자기가 가지고 있는 책을 빌리려고 한다면
+                          if(havers.contains(FirebaseAuth.instance.currentUser?.uid.toString()))
+                            havers.remove(FirebaseAuth.instance.currentUser?.uid.toString());
+
+                            chatName=FirebaseAuth.instance.currentUser!.uid.toString()+"_"+
+                                havers[Random().nextInt(havers.length)]+localTimestamp.toString();
+
+                            ChatRooms _chatroom=new ChatRooms('', '"https://static.smalljoys.me/2021/05/5741814_img_6675_1621687382.jpg"', ['asdf','asdfasdf'],
+                                chatName, localTimestamp.toString(), title);
+
+                            FirebaseDatabase.instance.ref('chatRooms')
+                          .child(chatName).set(_chatroom.toMap());
+
+
+
+
+                          Navigator.of(context).pop(true);
                           Navigator.of(context).push(MaterialPageRoute(builder: (context)
                           => ChatScreen()));
-                          flag=!flag;
-                        });
-
+                        }
+                        else
+                        {
+                          Navigator.of(context).pop(true);
+                          Fluttertoast.showToast(
+                              msg: "현재 책을 가지고 있는 사람이 없어 빌릴 수 없습니다.",
+                              toastLength: Toast.LENGTH_SHORT,
+                              gravity: ToastGravity.CENTER,
+                              timeInSecForIosWeb: 1,
+                              backgroundColor: Colors.red,
+                              textColor: Colors.white,
+                              fontSize: 16.0
+                          );
+                        }
+                        flag=!flag;
                       });
 
+                    });
+
                     //  LinearProgressIndicator();
-                    }:null, child: Text('빌리기',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 14,
-                        fontFamily: "Roboto",
-                        fontWeight: FontWeight.w500,
-                        letterSpacing: 1.25,
-                      ),),
+                  }:null, child: Text('빌리기',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 14,
+                      fontFamily: "Roboto",
+                      fontWeight: FontWeight.w500,
+                      letterSpacing: 1.25,
+                    ),),
                     style: ElevatedButton.styleFrom(
                       primary: Color(0xff5d5fef),
                     ),),
-                  ),
-                  SizedBox(width: 10,),
+                ),
+                SizedBox(width: 10,),
 
-                  SizedBox(
+                SizedBox(
                     width: 80,
                     height: 50,
                     child: ElevatedButton.icon(onPressed: flag?(){
@@ -341,12 +404,12 @@ class _DetailScreenState extends State<DetailScreen>{
                         widget.book.like=!widget.book.like;
                         doc.reference.update({'like':widget.book.like});
 
-                            if(widget.book.like) {
-                              widget.book.like_count++;
-                            }
-                            else{
-                              widget.book.like_count--;
-                            }
+                        if(widget.book.like) {
+                          widget.book.like_count++;
+                        }
+                        else{
+                          widget.book.like_count--;
+                        }
                         doc.reference.update({'like_count':widget.book.like_count});
 
 
@@ -362,33 +425,32 @@ class _DetailScreenState extends State<DetailScreen>{
 
                       });
                     }:null, icon: !widget.book.like?Icon(Icons.favorite):Icon(Icons.favorite,color: Colors.red,),
-                        label: Padding(
-                          padding: EdgeInsets.only(bottom: 1),
-                          child: Text("찜",style: TextStyle(
-                            color:!widget.book.like? Colors.white:Colors.red,
-                            fontSize: 14,
-                            fontFamily: "Roboto",
-                            fontWeight: FontWeight.w500,
-                            letterSpacing: 1.25,
-                          ),),
-                        ),
-                    style: ElevatedButton.styleFrom(
-                      primary: !widget.book.like?Colors.grey:Colors.white
-                    ),)
-                  ),
+                      label: Padding(
+                        padding: EdgeInsets.only(bottom: 1),
+                        child: Text("찜",style: TextStyle(
+                          color:!widget.book.like? Colors.white:Colors.red,
+                          fontSize: 14,
+                          fontFamily: "Roboto",
+                          fontWeight: FontWeight.w500,
+                          letterSpacing: 1.25,
+                        ),),
+                      ),
+                      style: ElevatedButton.styleFrom(
+                          primary: !widget.book.like?Colors.grey:Colors.white
+                      ),)
+                ),
 
-                ],
-              ),
-            )
+              ],
+            ),
+          )
 
 
-          ],
-        ),
+        ],
+      ),
 
     );
   }
 
 }
-
 
 
