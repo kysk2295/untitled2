@@ -1,8 +1,12 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:untitled2/model/Users.dart';
 import 'package:untitled2/screen/email_signup_screen.dart';
 import 'package:untitled2/screen/home_screen.dart';
+
 
 class LoginScreen extends StatelessWidget{
 
@@ -19,6 +23,24 @@ class LoginScreen extends StatelessWidget{
       idToken: googleAuth?.idToken,
     );
     //구글 로그인 추가
+    // User? user = FirebaseAuth.instance.currentUser;
+    // if(googleUser!=null) {
+    //   Users users = new Users(googleUser.displayName.toString(),
+    //       "https://static.smalljoys.me/2021/05/5741814_img_6675_1621687382.jpg"
+    //       , googleUser.email.toString(), 0, 0, 0);
+    //
+    //   //reference.set(users.toMap());
+    //   //reference.set({"hi":"asdf"});
+    //   print("asdlfkjlaksdjf");
+    //
+    //
+    //   FirebaseFirestore.instance.collection('user').doc(
+    //       ).set(users.toMap())
+    //       .then((value) => {
+    //     print("success")
+    //   }).catchError((error)=>print(error));
+    //
+    // }
 
     // Once signed in, return the UserCredential
     return await FirebaseAuth.instance.signInWithCredential(credential);
@@ -48,8 +70,24 @@ class LoginScreen extends StatelessWidget{
                 ),
                 //SizedBox(height: 100,),
                 GestureDetector(
-                  onTap: () {
-                      signInWithGoogle();
+                  onTap: ()  {
+                    Users users;
+                    signInWithGoogle().then((value)  {
+                      if(value.user!=null){
+                        users=new Users(value.user!.displayName.toString(),
+                    "https://static.smalljoys.me/2021/05/5741814_img_6675_1621687382.jpg",
+                    value.user!.email.toString(), 0, 0, 0);
+
+                        FirebaseFirestore.instance.collection('user').doc(
+                          value.user?.uid.toString()
+                        ).set(users.toMap())
+                            .then((value) => {
+                          print("success")
+                        }).catchError((error)=>print(error));
+
+                    }
+                    });
+
                       // Navigator.push(context, MaterialPageRoute(builder: (context)
                       // => HomeScreen()));
                       //print(user?.email);

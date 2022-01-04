@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:core';
 import 'dart:math';
 import 'dart:ui';
 
@@ -10,6 +11,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_dash/flutter_dash.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:intl/date_symbol_data_local.dart';
+import 'package:intl/intl.dart';
 import 'package:smooth_star_rating/smooth_star_rating.dart';
 import 'package:untitled2/model/Book.dart';
 import 'package:untitled2/model/ChatRooms.dart';
@@ -340,24 +343,52 @@ class _DetailScreenState extends State<DetailScreen>{
                         print(borrowPossible);
                         if(borrowPossible)
                         {
+                          List<String> yorris=[];
+                          yorris.clear();
                           String? chatName;
+                          String? otherUid;
+                          String imgUrl='';
                           var timeZoneOffset = DateTime.now().timeZoneOffset.inMilliseconds;
                           var localTimestamp = (DateTime.now().millisecondsSinceEpoch + timeZoneOffset);
+                          initializeDateFormatting();
+                          String time=DateTime.now().toString();
+                          print(time);
                           //자기가 가지고 있는 책을 빌리려고 한다면
                           if(havers.contains(FirebaseAuth.instance.currentUser?.uid.toString()))
                             havers.remove(FirebaseAuth.instance.currentUser?.uid.toString());
 
+                          otherUid=havers[Random().nextInt(havers.length)];
                             chatName=FirebaseAuth.instance.currentUser!.uid.toString()+"_"+
-                                havers[Random().nextInt(havers.length)]+localTimestamp.toString();
+                                otherUid!+"_"+localTimestamp.toString();
 
-                            ChatRooms _chatroom=new ChatRooms('', '"https://static.smalljoys.me/2021/05/5741814_img_6675_1621687382.jpg"', ['asdf','asdfasdf'],
-                                chatName, localTimestamp.toString(), title);
+                            yorris.add(FirebaseAuth.instance.currentUser!.uid.toString());
+                            yorris.add(otherUid);
 
-                            FirebaseDatabase.instance.ref('chatRooms')
-                          .child(chatName).set(_chatroom.toMap());
+                          //   FirebaseDatabase.instance.ref('user').child('${otherUid}/profileImg')
+                          // .get().then((value) {
+                          //   imgUrl=value.value.toString();
+                          //   print(imgUrl);
+                          //
+                          //   ChatRooms _chatroom=new ChatRooms('', imgUrl, yorris,
+                          //       chatName!, localTimestamp.toString(), title);
+                          //
+                          //   FirebaseDatabase.instance.ref('chatRooms')
+                          //       .child(chatName).set(_chatroom.toMap());
+                          //
+                          //   });
 
+                          FirebaseFirestore.instance.collection('user').doc(otherUid)
+                          .get().then((DocumentSnapshot snapshot) {
+                            Map<String,dynamic>? data=snapshot.data() as Map<String, dynamic>?;
+                              imgUrl=data?['profileImg'];
 
+                              ChatRooms _chatroom=new ChatRooms('', imgUrl, yorris,
+                                        chatName!, time, title);
+                              FirebaseFirestore.instance.collection('chatRoom')
+                              .doc(chatName).set(_chatroom.toMap());
 
+                              }
+                          );
 
                           Navigator.of(context).pop(true);
                           Navigator.of(context).push(MaterialPageRoute(builder: (context)

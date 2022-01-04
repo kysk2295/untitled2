@@ -6,7 +6,18 @@ class ChatRooms{
   final String timestamp;
   final String bookName;
 
-  ChatRooms(this.lastMsg, this.profileImg, this.userList, this.roomId, this.timestamp, this.bookName);
+  ChatRooms( this.lastMsg,  this.profileImg, this.userList, this.roomId,  this.timestamp, this.bookName);
+
+  // factory ChatRooms.fromJson(Map<dynamic,dynamic> json){
+  //   double parser(dynamic source){
+  //     try{
+  //       return dynamic.parse(source.toString());
+  //     } on FormatException{
+  //       return -1;
+  //     }
+  //   }
+  //   return ChatRooms(lastMsg: parser(json['lastMsg']), profileImg: parser(json['lastMsg']), userList, roomId, timestamp, bookName)
+  // }
 
   Map<String,dynamic> toMap(){
     return {

@@ -264,7 +264,7 @@ class _HomeScreenState extends State<HomeScreen> {
               SizedBox(height: 20,),
               SizedBox(
                 child: StreamBuilder<QuerySnapshot>(
-                  stream: FirebaseFirestore.instance.collection('book').orderBy("like_count",descending: true).limit(6).snapshots(),
+                  stream: FirebaseFirestore.instance.collection('book').orderBy("like_count",descending: true).snapshots(),
                   builder: (BuildContext context,AsyncSnapshot<QuerySnapshot> snapshot){
                     if(!snapshot.hasData)
                       return CircularProgressIndicator();

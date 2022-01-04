@@ -20,6 +20,7 @@ class _BookCaseScreenState extends State<BookCaseScreen>{
 
   String _scanBarcode='Unknown';
   late List<Book> data;
+  late List<Book> bookData;
   late List<String> winks;
   User? user = FirebaseAuth.instance.currentUser;
   TextEditingController _textFieldController = TextEditingController();
@@ -67,7 +68,7 @@ class _BookCaseScreenState extends State<BookCaseScreen>{
                   builder: (BuildContext context,AsyncSnapshot<QuerySnapshot> snapshot){
                     if(!snapshot.hasData)
                       return Center(child: Text('등록되어 있는 책이 없습니다.'),);
-                    data.clear();
+                    bookData.clear();
                     for(var i =0;i<snapshot.data!.docs.length;i++){
                       var a = snapshot.data!.docs[i];
                       List<dynamic> son = a['authors'];
@@ -82,13 +83,13 @@ class _BookCaseScreenState extends State<BookCaseScreen>{
                           a['like'],
                           a['like_count'],
                           a['possible']);
-                      data.add(book);
+                      bookData.add(book);
                     }
 
                     return Expanded(
                       child: GridView.count(crossAxisCount: 3,
                         padding: EdgeInsets.only(left: 20,top: 10,right: 10,bottom: 10),
-                        children: makehavingImages(context, data),
+                        children: makehavingImages(context, bookData),
                         shrinkWrap: true,
                         physics: ScrollPhysics(),
                         scrollDirection: Axis.vertical,
@@ -122,8 +123,8 @@ class _BookCaseScreenState extends State<BookCaseScreen>{
     super.initState();
     data=[];
     winks=[];
-    data.clear();
-    winks.clear();
+    bookData=[];
+
   }
   Future<void> startBarcodeScanStream() async {
     FlutterBarcodeScanner.getBarcodeStreamReceiver(
@@ -139,11 +140,7 @@ class _BookCaseScreenState extends State<BookCaseScreen>{
           'Cancel',
           true,
           ScanMode.BARCODE);
-      setState(() {
-        _scanBarcode=barcodeScanRes;
-        getJSONData(_scanBarcode).whenComplete(() => _showRegisterDialog());
-        print(_scanBarcode);
-      });
+
 
 
     } on PlatformException{
@@ -152,6 +149,12 @@ class _BookCaseScreenState extends State<BookCaseScreen>{
     if(!mounted) return;
     //바코드가 스캔이 제대로 안되고 팅길때
     //이전 바코드를 사용해서 에러가 난다.
+    setState(() async {
+      _scanBarcode=barcodeScanRes;
+      await getJSONData(_scanBarcode);
+      //getJSONData(_scanBarcode).whenComplete(() => _showRegisterDialog());
+      print(_scanBarcode);
+    });
 
   }
 
@@ -170,7 +173,8 @@ class _BookCaseScreenState extends State<BookCaseScreen>{
     winks.clear();
     print(data.toString());
 
-    setState(() async {
+    setState(() {
+      print('asdfasdf');
       var dataCpmvertedToJSON = json.decode(response.body);
       List result = dataCpmvertedToJSON['documents'];
 
@@ -197,8 +201,10 @@ class _BookCaseScreenState extends State<BookCaseScreen>{
 
 
         data.add(book);
-        print(data.toString());
+        print(book.publisher);
+        print(data[0].publisher);
       });
+      _showRegisterDialog();
     });
     return response.body;
   }
@@ -303,6 +309,7 @@ class _BookCaseScreenState extends State<BookCaseScreen>{
                           child: Text(getText().length >7 ? getText().substring(0,7)+'...':getText().substring(0,getText().length-1), style: TextStyle(color: Colors.grey,fontSize: 14),),
                         ),
                         Padding(
+
                           padding: const EdgeInsets.only(bottom: 10),
                           child: Text(data[0].publisher, style: TextStyle(color: Colors.grey,fontSize: 14),),
                         ),
@@ -323,12 +330,19 @@ class _BookCaseScreenState extends State<BookCaseScreen>{
               FlatButton(
                 textColor: Colors.black,
                 onPressed: () {
-                  if(data.isNotEmpty)
-                  {
-                    _registerBook();
-                    print("go hereadf");
-                    print(data[0].title);
-                  }
+                  print('hi');
+                  print(data[0].publisher);
+
+                  setState(() {
+                    if(data.isNotEmpty)
+                    {
+                      print('hi');
+                      _registerBook();
+                      print("go hereadf");
+                      print(data[0].title);
+                    }
+
+                  });
 
                 },
                 child: Text('확인'),

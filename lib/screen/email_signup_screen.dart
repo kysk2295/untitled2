@@ -83,7 +83,10 @@ class _EmailSignUpState extends State<EmailSignUpScreen>{
        //reference.set({"hi":"asdf"});
        print("asdlfkjlaksdjf");
 
-
+      FirebaseFirestore.instance.collection('user').doc(user.uid.toString()).set(users.toMap())
+       .then((value) =>{
+        print("success")
+      });
       //  FirebaseFirestore.instance.collection('user').add(users.toMap())
       //  .then((value) => {
       //    print("success")
