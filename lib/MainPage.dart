@@ -1,4 +1,6 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:untitled2/screen/bookcase_screen.dart';
@@ -15,7 +17,6 @@ class MainPage extends StatefulWidget{
 class _MainPageState extends State<MainPage> {
   int _selectedIndex=0;
   List pages = [
-
     ChatScreen(),
     HomeScreen(),
     BookCaseScreen(),
@@ -39,6 +40,7 @@ class _MainPageState extends State<MainPage> {
         builder: (BuildContext context, AsyncSnapshot<User?> snapshot) {
           if (!snapshot.hasData)
             return LoginScreen();
+
           return Scaffold(
             body: pages[_selectedIndex],
             bottomNavigationBar: BottomNavigationBar(

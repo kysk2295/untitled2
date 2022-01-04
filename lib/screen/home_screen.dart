@@ -2,6 +2,7 @@ import 'dart:math';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:google_sign_in/google_sign_in.dart';
@@ -24,6 +25,7 @@ class _HomeScreenState extends State<HomeScreen> {
   //TextEdit 위젯을 컨트롤하는 위젯
   //앞에 _를 붙이면 private 변수, 생성자에서 접근 가능
   final TextEditingController _filter = TextEditingController();
+  late FirebaseMessaging _firebaseMessaging;
 
   //현재 검색 위젯이 커서가 있는지에 대한 상태를 가지고 있는 위젯
   FocusNode focusNode = FocusNode();
@@ -70,8 +72,18 @@ class _HomeScreenState extends State<HomeScreen> {
     //     });
     //   }).whenComplete(() => print("hi"+data.length.toString()));
     // });
+    _firebaseMessaging=FirebaseMessaging.instance;
+     _firebaseMessaging.getToken().then((value) {
 
-  }
+      FirebaseFirestore.instance.collection('fcm')
+          .doc(FirebaseAuth.instance.currentUser!.uid.toString())
+          .set({"fcmToken":value});
+      });
+
+      print("asdlfkjasldkjf");
+    }
+
+
 
 
   @override
