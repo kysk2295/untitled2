@@ -21,7 +21,6 @@ import 'package:untitled2/screen/chat_screen.dart';
 class DetailScreen extends StatefulWidget{
   final Book book;
 
-
   DetailScreen({required this.book});
 
   _DetailScreenState createState() => _DetailScreenState();
@@ -56,18 +55,15 @@ class _DetailScreenState extends State<DetailScreen>{
         //possible이 false인 경우
         //havers의 리스트에 자신의 uid가 있으면 true, 없으면 false를 반환한다.
         if(!borrowPossible){
-          borrowPossible=!havers.contains(FirebaseAuth.instance.currentUser?.uid.toString());
+          if(havers.isEmpty)
+            borrowPossible=false;
+          else
+            borrowPossible=!havers.contains(FirebaseAuth.instance.currentUser?.uid.toString());
           print(borrowPossible);
 
         }
       });
-    }
-
-    );
-
-
-
-
+    });
 
     //print("ㄴㄴ미ㅏ넝리ㅏㅁ어리머아ㅣ럼ㅇ");
   }
@@ -383,12 +379,24 @@ class _DetailScreenState extends State<DetailScreen>{
                               imgUrl=data?['profileImg'];
 
                               ChatRooms _chatroom=new ChatRooms('', imgUrl, yorris,
-                                        chatName!, time, title);
+                                        chatName!, time, title,otherUid.toString());
                               FirebaseFirestore.instance.collection('chatRoom')
                               .doc(chatName).set(_chatroom.toMap());
 
                               }
                           );
+                          havers.remove(otherUid);
+                          doc.reference.update({"havers":FieldValue.arrayRemove([otherUid])});
+                          setState(() {
+                            if(havers.isEmpty){
+                              doc.reference.update({"possible":false});
+                              borrowPossible=false;
+                            }
+                            print(borrowPossible);
+                          });
+
+
+
 
                           Navigator.of(context).pop(true);
                           Navigator.of(context).push(MaterialPageRoute(builder: (context)

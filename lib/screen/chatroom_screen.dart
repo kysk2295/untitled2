@@ -64,11 +64,13 @@ class _ChatRoomScreenState extends State<ChatRoomScreen>{
     // TODO: implement build
     return Scaffold(
         appBar: AppBar(
+          automaticallyImplyLeading: false,
           backgroundColor: Colors.white,
-          centerTitle: true,
-          title: Text(widget.chatRooms.bookName,style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold),),
+          title: Text(widget.chatRooms.bookName,style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold, fontSize: 16),),
           actions: [
-                IconButton(icon: Icon(Icons.menu, color: Colors.black,), onPressed: () {  },),
+                IconButton(icon: Icon(Icons.exit_to_app, color: Colors.black,), onPressed: () {
+                  OutDailog();
+                },),
 
           ],
         ),
@@ -219,6 +221,8 @@ class _ChatRoomScreenState extends State<ChatRoomScreen>{
 
     );
   }
+
+  //fucntion 서버로 fcm 보내기
   void sendSampleFcm(String token, String msg) async {
     final HttpsCallableResult result = await sendFCM.call(
       <String,dynamic>{
@@ -245,6 +249,9 @@ class _ChatRoomScreenState extends State<ChatRoomScreen>{
     FirebaseFirestore.instance.collection('chatRoom')
     .doc(widget.chatRooms.roomId).update({'lastMsg':_textEditController.text});
 
+    FirebaseFirestore.instance.collection('chatRoom')
+        .doc(widget.chatRooms.roomId).update({'timestamp':DateTime.now().toString()});
+
     FirebaseFirestore.instance.collection('fcm')
     .doc(toUser[0]).get().then((DocumentSnapshot snapshot) {
       Map<String,dynamic>? data=snapshot.data() as Map<String, dynamic>?;
@@ -254,6 +261,8 @@ class _ChatRoomScreenState extends State<ChatRoomScreen>{
       });
     });
 
+
+
     
     toUser.clear();
 
@@ -261,6 +270,44 @@ class _ChatRoomScreenState extends State<ChatRoomScreen>{
 
   void getToken() {
 
+  }
+
+  void OutDailog() {
+    showDialog(context: context, builder: (BuildContext context){
+      return CupertinoAlertDialog(
+        title: Text("채팅방 나가기"),
+        content: Text("${widget.chatRooms.bookName}책을 빌리지 않겠습니까? 채팅방을 나가면 거래가 자동으로 종료됩니다."),
+        actions: [
+          TextButton(onPressed: (){
+            Navigator.of(context).pop(true);
+          }, child: Text('취소',style: TextStyle(color: Colors.black),)),
+          TextButton(onPressed: (){
+            Navigator.of(context).pop(true);
+            setState(() async {
+
+              // 다시 havers에 저장하기
+              QuerySnapshot snapshot = await
+              FirebaseFirestore.instance.collection('book')
+                  .where('title',isEqualTo: widget.chatRooms.bookName).get();
+
+              if(snapshot.docs.isNotEmpty){
+                snapshot.docs.forEach((element) {
+                  element.reference.update({"havers":FieldValue.arrayUnion([widget.chatRooms.haverId])});
+                  element.reference.update({"possible":true});
+                });
+              }
+
+              FirebaseFirestore.instance.collection('chatRoom')
+                  .doc(widget.chatRooms.roomId).delete();
+
+              Navigator.of(context).pop(true);
+
+            });
+
+          }, child: Text('확인',style: TextStyle(color: Colors.black)))
+        ],
+      );
+    });
   }
 
 }

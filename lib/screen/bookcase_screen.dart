@@ -24,6 +24,7 @@ class _BookCaseScreenState extends State<BookCaseScreen>{
   late List<String> winks;
   User? user = FirebaseAuth.instance.currentUser;
   TextEditingController _textFieldController = TextEditingController();
+  bool flag= false;
 
   @override
   Widget build(BuildContext context) {

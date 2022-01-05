@@ -16,13 +16,16 @@ class _ChatScreenState extends State<ChatScreen>{
   List<ChatRooms> data=[];
   String name='default';
   String url='https://i.stack.imgur.com/l60Hf.png';
+
   @override
   Widget build(BuildContext context) {
     // TODO: implement build
     return
         Scaffold(
           appBar: AppBar(
-            title: Text('채팅',style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold),),
+            title: Text('채팅',style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
+            ),
+            automaticallyImplyLeading: false,
             backgroundColor: Colors.white,
             actions: [
               IconButton(onPressed: (){}, icon: Icon(Icons.search,color: Colors.black,))
@@ -42,7 +45,7 @@ class _ChatScreenState extends State<ChatScreen>{
                   var a=snapshot.data!.docs[i];
 
                   List<dynamic> lamela=a['userList'];
-                  ChatRooms chatRooms=new ChatRooms(a['lastMsg'], a['profileImg'], lamela.cast(), a['roomId'], a['timestamp'],a['bookName']);
+                  ChatRooms chatRooms=new ChatRooms(a['lastMsg'], a['profileImg'], lamela.cast(), a['roomId'], a['timestamp'],a['bookName'],a['haverId']);
                   data.add(chatRooms);
                 }
                 //print(data[0].userList);
@@ -118,12 +121,16 @@ class _ChatScreenState extends State<ChatScreen>{
               children: [
                 Row(
                     children:[ Container(
-                      width: 50,
-                      height: 50,
+                      width: 55,
+                      height: 55,
                       decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(20),
+                        borderRadius: BorderRadius.circular(5),
+                        image: DecorationImage(
+                          fit: BoxFit.fill,
+                          image: NetworkImage(url),
+                        )
                       ),
-                      child: Image.network(url,fit: BoxFit.cover,),
+
                     ),
 
                       SizedBox(width: 10),
@@ -136,7 +143,7 @@ class _ChatScreenState extends State<ChatScreen>{
                             child: Text(
                               name,
                               style: TextStyle(
-                                color: Color(0xff4a4a4a),
+                                color: Colors.black,
                                 fontSize: 16,
                                 fontFamily: "Roboto",
                                 fontWeight: FontWeight.w300,
@@ -144,7 +151,7 @@ class _ChatScreenState extends State<ChatScreen>{
                               ),
                             ),
                           ),
-                          SizedBox(height: 3),
+                          SizedBox(height: 5),
                           SizedBox(
                             width: 140,
                             height: 18,
@@ -152,7 +159,7 @@ class _ChatScreenState extends State<ChatScreen>{
                               data[i].lastMsg,
                               style: TextStyle(
                                 color: Color(0xff4a4a4a),
-                                fontSize: 14,
+                                fontSize: 12,
                                 fontFamily: "Roboto",
                                 fontWeight: FontWeight.w100,
                                 letterSpacing: 0.20,
@@ -162,15 +169,18 @@ class _ChatScreenState extends State<ChatScreen>{
                         ],
                       )
                     ]),
-                SizedBox(
-                  width: 43,
-                  height: 13,
-                  child: Text(
-                    time,
-                    style: TextStyle(
-                      color: Color(0xff4a4a4a),
-                      fontSize: 10,
-                      letterSpacing: 0.20,
+                Padding(
+                  padding: EdgeInsets.only(bottom: 20),
+                  child: SizedBox(
+                    width: 43,
+                    height: 13,
+                    child: Text(
+                      time,
+                      style: TextStyle(
+                        color: Color(0xff4a4a4a),
+                        fontSize: 10,
+                        letterSpacing: 0.20,
+                      ),
                     ),
                   ),
                 )
@@ -178,7 +188,7 @@ class _ChatScreenState extends State<ChatScreen>{
               ],
             ),
               Container(
-              margin: EdgeInsets.only(top: 20),
+              margin: EdgeInsets.only(top: 15),
                 height:1.0,
                 width:400.0,
                 color:Colors.grey.shade300,)

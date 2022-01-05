@@ -9,18 +9,22 @@ import 'package:untitled2/screen/home_screen.dart';
 import 'package:untitled2/screen/login_screen.dart';
 import 'package:untitled2/screen/profile_screen.dart';
 
+import 'model/Users.dart';
+
 class MainPage extends StatefulWidget{
 
   _MainPageState createState() =>_MainPageState();
 }
 
 class _MainPageState extends State<MainPage> {
+
+  late Users users;
   int _selectedIndex=0;
   List pages = [
     ChatScreen(),
     HomeScreen(),
     BookCaseScreen(),
-    ProfileScreen(),
+    ProfileScreen()
   ];
   List<BottomNavigationBarItem> bottomItems=[
     BottomNavigationBarItem(icon: ImageIcon(AssetImage("images/chat.png")),
@@ -34,6 +38,8 @@ class _MainPageState extends State<MainPage> {
 
   @override
   Widget build(BuildContext context) {
+
+
     // TODO: implement build
     return Scaffold(
         body: StreamBuilder(stream: FirebaseAuth.instance.authStateChanges(),

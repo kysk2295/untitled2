@@ -5,8 +5,9 @@ class ChatRooms{
   final String roomId;
   final String timestamp;
   final String bookName;
+  final String haverId;
 
-  ChatRooms( this.lastMsg,  this.profileImg, this.userList, this.roomId,  this.timestamp, this.bookName);
+  ChatRooms( this.lastMsg,  this.profileImg, this.userList, this.roomId,  this.timestamp, this.bookName, this.haverId);
 
   // factory ChatRooms.fromJson(Map<dynamic,dynamic> json){
   //   double parser(dynamic source){
@@ -26,7 +27,8 @@ class ChatRooms{
       'userList':userList,
       'roomId':roomId,
       'timestamp':timestamp,
-      'bookName':bookName
+      'bookName':bookName,
+      'haverId':haverId,
     };
   }
 }
