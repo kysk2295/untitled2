@@ -368,6 +368,7 @@ class _BookCaseScreenState extends State<BookCaseScreen>{
         .where('title',isEqualTo: data[0].title).where('authors',isEqualTo: data[0].authors).get();
 
     print(data[0].title);
+
     //이미 책이 등록되어 있으면
     if(snapshot.docs.isNotEmpty){
       print("go here2");
@@ -377,11 +378,15 @@ class _BookCaseScreenState extends State<BookCaseScreen>{
         element.reference.update({"possible":true});
         Navigator.of(context).pop(true);
       });
+
     }
     else{
       _addBook();
       print("go here");
     }
+
+    //등록 책 개수 업데이트
+    FirebaseFirestore.instance.collection('user').doc(FirebaseAuth.instance.currentUser!.uid.toString()).update({"registerBookCnt":FieldValue.increment(1)});
 
 
 

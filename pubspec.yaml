@@ -50,6 +50,8 @@ dependencies:
   cloud_functions: ^3.2.4
   image_picker:
   firebase_storage: ^10.2.4
+  shared_preferences: ^2.0.11
+  dotted_line: ^3.1.0
 
 
 dev_dependencies:
@@ -87,6 +89,7 @@ flutter:
     - images/profile.png
     - images/search.png
     - images/back.png
+    - images/line.png
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware.

@@ -395,7 +395,8 @@ class _DetailScreenState extends State<DetailScreen>{
                             print(borrowPossible);
                           });
 
-
+                          FirebaseFirestore.instance.collection('user').doc(FirebaseAuth.instance.currentUser!.uid.toString()).update({"borrowBookCnt":FieldValue.increment(1)});
+                          FirebaseFirestore.instance.collection('user').doc(otherUid).update({"rentBookCnt":FieldValue.increment(1)});
 
 
                           Navigator.of(context).pop(true);
