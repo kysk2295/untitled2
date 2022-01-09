@@ -34,7 +34,7 @@ class _DetailScreenState extends State<DetailScreen>{
   double star=4.0;
   late String title;
   late List<dynamic> havers=[];
-
+  late List<dynamic> likers=[];
 
   @override
   void initState() {
@@ -45,13 +45,18 @@ class _DetailScreenState extends State<DetailScreen>{
         .get().then((value)  {
 
       widget.book.like_count=value.docs[0]['like_count'];
-      widget.book.like=value.docs[0]['like'];
       title=value.docs[0]['title'];
+      likers=value.docs[0]['likers'];
       doc=value.docs[0];
       borrowPossible=value.docs[0]['possible'];
       havers=value.docs[0]['havers'];
-      print("adfasdfa");
+
       setState(() {
+
+        if(likers.contains(FirebaseAuth.instance.currentUser!.uid))
+          widget.book.like=true;
+        else
+          widget.book.like=false;
         //possible이 false인 경우
         //havers의 리스트에 자신의 uid가 있으면 true, 없으면 false를 반환한다.
         if(!borrowPossible){
@@ -353,55 +358,86 @@ class _DetailScreenState extends State<DetailScreen>{
                           if(havers.contains(FirebaseAuth.instance.currentUser?.uid.toString()))
                             havers.remove(FirebaseAuth.instance.currentUser?.uid.toString());
 
-                          otherUid=havers[Random().nextInt(havers.length)];
-                            chatName=FirebaseAuth.instance.currentUser!.uid.toString()+"_"+
-                                otherUid!+"_"+localTimestamp.toString();
+                          if(havers.isNotEmpty) {
+                            otherUid = havers[Random().nextInt(havers.length)];
+                            chatName = FirebaseAuth.instance.currentUser!.uid
+                                .toString() + "_" +
+                                otherUid! + "_" + localTimestamp.toString();
 
-                            yorris.add(FirebaseAuth.instance.currentUser!.uid.toString());
+                            yorris.add(FirebaseAuth.instance.currentUser!.uid
+                                .toString());
                             yorris.add(otherUid);
 
-                          //   FirebaseDatabase.instance.ref('user').child('${otherUid}/profileImg')
-                          // .get().then((value) {
-                          //   imgUrl=value.value.toString();
-                          //   print(imgUrl);
-                          //
-                          //   ChatRooms _chatroom=new ChatRooms('', imgUrl, yorris,
-                          //       chatName!, localTimestamp.toString(), title);
-                          //
-                          //   FirebaseDatabase.instance.ref('chatRooms')
-                          //       .child(chatName).set(_chatroom.toMap());
-                          //
-                          //   });
+                            //   FirebaseDatabase.instance.ref('user').child('${otherUid}/profileImg')
+                            // .get().then((value) {
+                            //   imgUrl=value.value.toString();
+                            //   print(imgUrl);
+                            //
+                            //   ChatRooms _chatroom=new ChatRooms('', imgUrl, yorris,
+                            //       chatName!, localTimestamp.toString(), title);
+                            //
+                            //   FirebaseDatabase.instance.ref('chatRooms')
+                            //       .child(chatName).set(_chatroom.toMap());
+                            //
+                            //   });
 
-                          FirebaseFirestore.instance.collection('user').doc(otherUid)
-                          .get().then((DocumentSnapshot snapshot) {
-                            Map<String,dynamic>? data=snapshot.data() as Map<String, dynamic>?;
-                              imgUrl=data?['profileImg'];
+                            FirebaseFirestore.instance.collection('user').doc(
+                                otherUid)
+                                .get().then((DocumentSnapshot snapshot) {
+                              Map<String, dynamic>? data = snapshot
+                                  .data() as Map<String, dynamic>?;
+                              imgUrl = data?['profileImg'];
 
-                              ChatRooms _chatroom=new ChatRooms('', imgUrl, yorris,
-                                        chatName!, time, title,otherUid.toString());
+                              ChatRooms _chatroom = new ChatRooms(
+                                  '',
+                                  imgUrl,
+                                  yorris,
+                                  chatName!,
+                                  time,
+                                  title,
+                                  otherUid.toString());
                               FirebaseFirestore.instance.collection('chatRoom')
-                              .doc(chatName).set(_chatroom.toMap());
-
-                              }
-                          );
-                          havers.remove(otherUid);
-                          doc.reference.update({"havers":FieldValue.arrayRemove([otherUid])});
-                          setState(() {
-                            if(havers.isEmpty){
-                              doc.reference.update({"possible":false});
-                              borrowPossible=false;
+                                  .doc(chatName).set(_chatroom.toMap());
                             }
-                            print(borrowPossible);
-                          });
+                            );
+                            havers.remove(otherUid);
+                            doc.reference.update(
+                                {"havers": FieldValue.arrayRemove([otherUid])});
+                            setState(() {
+                              if (havers.isEmpty) {
+                                doc.reference.update({"possible": false});
+                                borrowPossible = false;
+                              }
+                              print(borrowPossible);
+                            });
 
-                          FirebaseFirestore.instance.collection('user').doc(FirebaseAuth.instance.currentUser!.uid.toString()).update({"borrowBookCnt":FieldValue.increment(1)});
-                          FirebaseFirestore.instance.collection('user').doc(otherUid).update({"rentBookCnt":FieldValue.increment(1)});
+                            FirebaseFirestore.instance.collection('user').doc(
+                                FirebaseAuth.instance.currentUser!.uid
+                                    .toString()).update(
+                                {"borrowBookCnt": FieldValue.increment(1)});
+                            FirebaseFirestore.instance.collection('user').doc(
+                                otherUid).update(
+                                {"rentBookCnt": FieldValue.increment(1)});
 
 
-                          Navigator.of(context).pop(true);
-                          Navigator.of(context).push(MaterialPageRoute(builder: (context)
-                          => ChatScreen()));
+                            Navigator.of(context).pop(true);
+                            Navigator.of(context).push(MaterialPageRoute(
+                                builder: (context) => ChatScreen()));
+                          }
+                          //책을 가지고 있는 사람이 자기자신밖에 없을 때
+                          else{
+                            Navigator.of(context).pop(true);
+                            Fluttertoast.showToast(
+                                msg: "현재 책을 가지고 있는 사람이 없어 빌릴 수 없습니다.",
+                                toastLength: Toast.LENGTH_SHORT,
+                                gravity: ToastGravity.CENTER,
+                                timeInSecForIosWeb: 1,
+                                backgroundColor: Colors.red,
+                                textColor: Colors.white,
+                                fontSize: 16.0
+                            );
+                          }
+
                         }
                         else
                         {
@@ -442,13 +478,15 @@ class _DetailScreenState extends State<DetailScreen>{
                     child: ElevatedButton.icon(onPressed: flag?(){
                       setState(() {
                         widget.book.like=!widget.book.like;
-                        doc.reference.update({'like':widget.book.like});
+                       // doc.reference.update({'like':widget.book.like});
 
                         if(widget.book.like) {
                           widget.book.like_count++;
+                          doc.reference.update({'likers':FieldValue.arrayUnion([FirebaseAuth.instance.currentUser!.uid.toString()])});
                         }
                         else{
                           widget.book.like_count--;
+                          doc.reference.update({'likers':FieldValue.arrayRemove([FirebaseAuth.instance.currentUser!.uid.toString()])});
                         }
                         doc.reference.update({'like_count':widget.book.like_count});
 

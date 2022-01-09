@@ -76,17 +76,26 @@ class _EmailSignUpState extends State<EmailSignUpScreen>{
 
 
     if(user!=null && !user.emailVerified) {
-       Users users = new Users(_nameTextEditController.text, "https://static.smalljoys.me/2021/05/5741814_img_6675_1621687382.jpg"
-           ,user.email.toString() , 0, 0, 0);
-       FirebaseDatabase.instance.ref('user').child(user.uid.toString()).set(users.toMap());
+      FirebaseFirestore.instance.collection('user').doc(user.uid.toString())
+      .get().then((snapshot) {
+        //처음 가입하는 거면
+        if(!snapshot.exists)
+          {
+            Users users = new Users(_nameTextEditController.text, "https://static.smalljoys.me/2021/05/5741814_img_6675_1621687382.jpg"
+                ,user.email.toString() , 0, 0, 0);
+            FirebaseFirestore.instance.collection('user').doc(user.uid.toString()).set(users.toMap())
+                .then((value) =>{
+              print("success")
+            });
+          }
+      });
+
+       //FirebaseDatabase.instance.ref('user').child(user.uid.toString()).set(users.toMap());
        //reference.set(users.toMap());
        //reference.set({"hi":"asdf"});
        print("asdlfkjlaksdjf");
 
-      FirebaseFirestore.instance.collection('user').doc(user.uid.toString()).set(users.toMap())
-       .then((value) =>{
-        print("success")
-      });
+
       //  FirebaseFirestore.instance.collection('user').add(users.toMap())
       //  .then((value) => {
       //    print("success")

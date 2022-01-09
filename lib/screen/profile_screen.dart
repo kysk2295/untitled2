@@ -219,10 +219,11 @@ class _ProfileScreenState extends State<ProfileScreen>{
         _profileImageURL=downloadURL;
         prefs.setString('url',_profileImageURL);
         print(_profileImageURL);
+        FirebaseFirestore.instance.collection('user').doc(FirebaseAuth.instance.currentUser!.uid.toString()).update({"profileImg":_profileImageURL});
       });
     });
 
-    FirebaseFirestore.instance.collection('user').doc(FirebaseAuth.instance.currentUser!.uid.toString()).update({"profileImg":_profileImageURL});
+
 
 
   }

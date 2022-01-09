@@ -8,8 +8,9 @@ class Book {
   final String title;
   final String imgUrl;
   final bool possible;
+  final List<String> likers;
 
-  Book(this.authors, this.contents, this.havers, this.publisher, this.title, this.imgUrl, this.like, this.like_count, this.possible);
+  Book(this.authors, this.contents, this.havers, this.publisher, this.title, this.imgUrl, this.like, this.like_count, this.possible, this.likers);
 
   Map<String,dynamic> toMap(){
     return {
@@ -21,7 +22,8 @@ class Book {
       'publisher':publisher,
       'title':title,
       'imgUrl':imgUrl,
-      'possible':possible
+      'possible':possible,
+      'likers':likers
     };
   }
 }

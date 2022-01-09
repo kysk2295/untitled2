@@ -74,19 +74,28 @@ class LoginScreen extends StatelessWidget{
                     Users users;
                     signInWithGoogle().then((value)  {
                       if(value.user!=null){
-                        users=new Users(value.user!.displayName.toString(),
-                    "https://static.smalljoys.me/2021/05/5741814_img_6675_1621687382.jpg",
-                    value.user!.email.toString(), 0, 0, 0);
 
-                        FirebaseFirestore.instance.collection('user').doc(
-                          value.user?.uid.toString()
-                        ).set(users.toMap())
-                            .then((value) => {
-                          print("success")
-                        }).catchError((error)=>print(error));
+                        FirebaseFirestore.instance.collection('user').doc(value.user?.uid.toString())
+                        .get().then((snapshot) {
+                          //처음 가입하는 거면 users에 정보 추가
+                          if(!snapshot.exists)
+                            {
+                              users=new Users(value.user!.displayName.toString(),
+                                  "https://static.smalljoys.me/2021/05/5741814_img_6675_1621687382.jpg",
+                                  value.user!.email.toString(), 0, 0, 0);
 
-                    }
-                    });
+                              FirebaseFirestore.instance.collection('user').doc(
+                                  value.user?.uid.toString()
+                              ).set(users.toMap())
+                                  .then((value) => {
+                                print("success")
+                              }).catchError((error)=>print(error));
+
+                            }
+                        });
+                            }
+                        });
+
 
                       // Navigator.push(context, MaterialPageRoute(builder: (context)
                       // => HomeScreen()));

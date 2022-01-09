@@ -94,6 +94,8 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
+
+
     Future<String> getJSONData() async {
       var url = "https://dapi.kakao.com/v3/search/book?target=title&query=doit";
       var response = await http.get(Uri.parse((url)),
@@ -124,7 +126,7 @@ class _HomeScreenState extends State<HomeScreen> {
               url,
               false,
               0,
-              false);
+              false,[]);
 
           FirebaseFirestore.instance.collection('book').add(book.toMap())
               .then((value) => print("success"))
@@ -285,6 +287,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       var a = snapshot.data!.docs[i];
                       List<dynamic> son = a['authors'];
                       List<dynamic> kane = a['havers'];
+                      List<dynamic> gil = a['likers'];
                       Book book = new Book(
                           son.cast<String>(),
                           a['contents'],
@@ -294,9 +297,11 @@ class _HomeScreenState extends State<HomeScreen> {
                           a['imgUrl'],
                           a['like'],
                           a['like_count'],
-                          a['possible']);
+                          a['possible'],
+                      gil.cast<String>());
                       data.add(book);
                     }
+                    
 
                     return Expanded(
                       child: GridView.count(crossAxisCount: 3,

@@ -74,6 +74,8 @@ class _BookCaseScreenState extends State<BookCaseScreen>{
                       var a = snapshot.data!.docs[i];
                       List<dynamic> son = a['authors'];
                       List<dynamic> kane = a['havers'];
+                      List<dynamic> gil=a['likers'];
+
                       Book book = new Book(
                           son.cast<String>(),
                           a['contents'],
@@ -83,7 +85,8 @@ class _BookCaseScreenState extends State<BookCaseScreen>{
                           a['imgUrl'],
                           a['like'],
                           a['like_count'],
-                          a['possible']);
+                          a['possible'],
+                      gil.cast<String>());
                       bookData.add(book);
                     }
 
@@ -198,7 +201,7 @@ class _BookCaseScreenState extends State<BookCaseScreen>{
             url,
             false,
             0,
-            false);
+            false,[]);
 
 
         data.add(book);

@@ -85,6 +85,7 @@ class _ChatScreenState extends State<ChatScreen>{
           setState(() {
             name=data?['name'];
             url=data?['profileImg'];
+           // print(url);
 
           });
 
@@ -99,6 +100,7 @@ class _ChatScreenState extends State<ChatScreen>{
           setState(() {
             name=data?['name'];
             url=data?['profileImg'];
+            //print(url);
 
           });
 
