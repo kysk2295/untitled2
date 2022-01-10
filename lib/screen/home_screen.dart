@@ -5,6 +5,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
+import 'package:flutter_typeahead/flutter_typeahead.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:untitled2/model/Book.dart';
 import 'package:untitled2/model/Category.dart';
@@ -13,6 +14,7 @@ import 'package:untitled2/screen/detail_screen.dart';
 import 'package:untitled2/screen/login_screen.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+import 'package:untitled2/screen/search_screen.dart';
 
 class HomeScreen extends StatefulWidget{
 
@@ -34,6 +36,8 @@ class _HomeScreenState extends State<HomeScreen> {
   String _searchText = "";
   late List<Book> data;
   late List<Category> list;
+  late List book_title;
+  late List<Book> data2;
 
   //_filter가 상태변화를 감지하여 searchText의 상태를 변화시키는 코드
   _HomeScreenState() {
@@ -50,6 +54,9 @@ class _HomeScreenState extends State<HomeScreen> {
     super.initState();
     data = [];
     list = [];
+    book_title=[];
+    data2=[];
+
     // setState(() {
     //   FirebaseFirestore.instance.collection('book')
     //       .get().then((QuerySnapshot querySnapshot) {
@@ -96,8 +103,8 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget build(BuildContext context) {
 
 
-    Future<String> getJSONData() async {
-      var url = "https://dapi.kakao.com/v3/search/book?target=title&query=doit";
+     Future  getJSONData(String pattern) async {
+      var url = "https://dapi.kakao.com/v3/search/book?target=title&query=${pattern}";
       var response = await http.get(Uri.parse((url)),
           headers: {
             'Authorization': 'KakaoAK 56802a183308fef11bc11dc21c8d0d68'
@@ -105,8 +112,8 @@ class _HomeScreenState extends State<HomeScreen> {
 
       //print(response.bodyBytes);
       //print(utf8.decode(response.bodyBytes));
-
-      setState(() async {
+        book_title.clear();
+        data2.clear();
         var dataCpmvertedToJSON = json.decode(response.body);
         List result = dataCpmvertedToJSON['documents'];
         result.forEach((element) {
@@ -117,25 +124,30 @@ class _HomeScreenState extends State<HomeScreen> {
           String url = obj['thumbnail'];
           List<dynamic> authors = obj['authors'];
 
-          Book book = new Book(
-              authors.cast<String>(),
-              content,
-              ["고윤서", "손흥민"],
-              publisher,
-              title,
-              url,
-              false,
-              0,
-              false,[]);
+         // Book books = Book(authors.cast<String>(), content, [], publisher, title, url, false, 0, possible, likers)
+          Book books = Book(authors.cast<String>(), content, [], publisher, title, url, false, 0, false,[]);
+          data2.add(books);
 
-          FirebaseFirestore.instance.collection('book').add(book.toMap())
-              .then((value) => print("success"))
-              .catchError((error) => print(error));
+          book_title.add({"title":title});
+
+          // Book book = new Book(
+          //     authors.cast<String>(),
+          //     content,
+          //     ["고윤서", "손흥민"],
+          //     publisher,
+          //     title,
+          //     url,
+          //     false,
+          //     0,
+          //     false,[]);
+          //
+          // FirebaseFirestore.instance.collection('book').add(book.toMap())
+          //     .then((value) => print("success"))
+          //     .catchError((error) => print(error));
 
           //data.add(book);
-        });
       });
-      return response.body;
+      return data2;
     }
 
     // getJSONData();
@@ -152,48 +164,102 @@ class _HomeScreenState extends State<HomeScreen> {
                 child: Row(
                   children: [
                     Expanded(child:
-                    TextField(focusNode: focusNode,
-                      onChanged: (text) {},
-                      style: TextStyle(fontSize: 15),
-                      autofocus: false,
-                      cursorColor: Color(0xffaeaeae),
-                      controller: _filter,
-                      decoration: InputDecoration(
-                          filled: true,
-                          fillColor: Color(0xffebebeb),
-                          prefixIcon: focusNode.hasFocus ? Icon(
-                            Icons.search,
-                            color: Colors.blue,
-                            size: 20,
-                          ) : Icon(
-                            Icons.search,
-                            color: Color(0xffaeaeae),
-                            size: 20,
-                          ),
-                          suffixIcon: focusNode.hasFocus ? IconButton(
-                            onPressed: () {
-                              setState(() {
-                                _filter.clear();
-                                _searchText = "";
-                              });
-                            }, icon: Icon(Icons.cancel, size: 16,),
-                            color: Color(0xffaeaeae),) : Container(),
-                          hintText: '검색',
-                          hintStyle: TextStyle(color: Colors.black12),
-                          focusedBorder: OutlineInputBorder(
-                            borderSide: BorderSide(color: Colors.transparent),
-                            borderRadius: BorderRadius.all(Radius.circular(5)),
-                          ),
-                          enabledBorder: OutlineInputBorder(
-                            borderSide: BorderSide(color: Colors.transparent),
-                            borderRadius: BorderRadius.all(Radius.circular(5)),
-                          ),
-                          border: OutlineInputBorder(
-                            borderSide: BorderSide(color: Colors.transparent),
-                            borderRadius: BorderRadius.all(Radius.circular(5)),
-                          )
+                TypeAheadField(
+                textFieldConfiguration: TextFieldConfiguration(
+                  textInputAction: TextInputAction.search,
+                  onSubmitted: (value) {
+                    Navigator.of(context).push(MaterialPageRoute(builder: (context)=>SearchScreen(data: data2,)));
+                  },
+                  focusNode: focusNode,
+                  onChanged: (text) {},
+                  style: TextStyle(fontSize: 15),
+                  autofocus: false,
+                  cursorColor: Color(0xffaeaeae),
+                  controller: _filter,
+                  decoration: InputDecoration(
+                      filled: true,
+                      fillColor: Color(0xffebebeb),
+                      prefixIcon: focusNode.hasFocus ? Icon(
+                        Icons.search,
+                        color: Colors.blue,
+                        size: 20,
+                      ) : Icon(
+                        Icons.search,
+                        color: Color(0xffaeaeae),
+                        size: 20,
+                      ),
+                      suffixIcon: focusNode.hasFocus ? IconButton(
+                        onPressed: () {
+                          setState(() {
+                            _filter.clear();
+                            _searchText = "";
+                          });
+                        }, icon: Icon(Icons.cancel, size: 16,),
+                        color: Color(0xffaeaeae),) : Container(),
+                      hintText: '검색',
+                      hintStyle: TextStyle(color: Colors.black12),
+                      focusedBorder: OutlineInputBorder(
+                        borderSide: BorderSide(color: Colors.transparent),
+                        borderRadius: BorderRadius.all(Radius.circular(5)),
+                      ),
+                      enabledBorder: OutlineInputBorder(
+                        borderSide: BorderSide(color: Colors.transparent),
+                        borderRadius: BorderRadius.all(Radius.circular(5)),
+                      ),
+                      border: OutlineInputBorder(
+                        borderSide: BorderSide(color: Colors.transparent),
+                        borderRadius: BorderRadius.all(Radius.circular(5)),
+                      )
 
-                      ),), flex: 6,),
+                  ),
+                ),
+          suggestionsCallback: (pattern) async {
+                  if(pattern.isNotEmpty)
+                  return await getJSONData(pattern);
+                  else
+                    return [];
+
+
+          },
+          itemBuilder: (context, dynamic suggestion) {
+            return suggestion.title.isNotEmpty ? ListTile(
+              title: Text(suggestion.title)
+
+            ) : Container();
+
+          },
+          onSuggestionSelected: (dynamic suggestion) async {
+
+                  QuerySnapshot snapshot= await
+                  FirebaseFirestore.instance.collection('book')
+                  .where('title',isEqualTo: suggestion.title)
+                  .where('authors',isEqualTo: suggestion.authors).get();
+
+                  //책이 db에 등록되어 있지 않으면
+                  if(snapshot.docs.isEmpty){
+                    Navigator.of(context).push(MaterialPageRoute(builder: (context)=>
+                        DetailScreen(book: suggestion)));
+                  }
+                  //db에 등록되어 있으면
+                  else
+                    {
+                      FirebaseFirestore.instance.collection('book')
+                          .doc(snapshot.docs[0].id).get().then((value) {
+                        Map<String,dynamic>? data=value.data() as Map<String, dynamic>?;
+                        setState(() {
+                          Book book = Book(data?['authors'].cast<String>(), data?['contents'], data?['havers'].cast<String>(), data?['publisher'],data?['title'], data?['imgUrl'], data?['like'], data?['like_count'], data?['possible'], data?['likers'].cast<String>());
+                          Navigator.of(context).push(MaterialPageRoute(builder: (context)=>
+                              DetailScreen(book: book)));
+                        });
+                      });
+                    }
+
+
+
+
+          },
+        )
+                    , flex: 6,),
                     focusNode.hasFocus ? Expanded(
                       child: FlatButton(
                         padding: EdgeInsets.zero,
@@ -301,7 +367,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       gil.cast<String>());
                       data.add(book);
                     }
-                    
+
 
                     return Expanded(
                       child: GridView.count(crossAxisCount: 3,
@@ -332,6 +398,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
     );
   }
+
 
 //   Expanded makeWidget(BuildContext context) {
 //     print('hiasdf');
