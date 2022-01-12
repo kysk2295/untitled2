@@ -91,18 +91,18 @@ class _BookCaseScreenState extends State<BookCaseScreen>{
                       bookData.add(book);
                     }
 
-                    return Expanded(
-                      child: GridView.count(crossAxisCount: 3,
+                    return
+                      GridView.count(crossAxisCount: 3,
                         padding: EdgeInsets.only(left: 20,top: 10,right: 10,bottom: 10),
                         children: makehavingImages(context, bookData),
                         shrinkWrap: true,
                         physics: ScrollPhysics(),
                         scrollDirection: Axis.vertical,
-                        mainAxisSpacing: 30,
-                        childAspectRatio: (1 / 1.5),
+                        mainAxisSpacing: 10,
+                        childAspectRatio: (1 / 1.6),
                         primary: false,
 
-                      ),
+
                     );
                   },
                 ),
@@ -478,9 +478,9 @@ List<Widget> makehavingImages(BuildContext context, List<Book> data) {
         // mainAxisAlignment: MainAxisAlignment.end,
         // crossAxisAlignment: CrossAxisAlignment.center,
         children:[
-          Expanded(
-            child: Container(
-              height: 200,
+          // Expanded(
+          /*  child: */Container(
+              height: 140,
               width: 100,
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(5),
@@ -493,11 +493,11 @@ List<Widget> makehavingImages(BuildContext context, List<Book> data) {
                 ],
               ),
               child:
-              Expanded(child: Image.network(data[i].imgUrl,fit: BoxFit.fill,  )),
+              Image.network(data[i].imgUrl,fit: BoxFit.fill, ),
               //Expanded(child: Image.network("https://bimage.interpark.com/partner/goods_image/8/3/5/5/354358355s.jpg", ))
 
 
-            ),
+            //),
           ),
           SizedBox(height: 10,),
 
@@ -515,7 +515,7 @@ List<Widget> makehavingImages(BuildContext context, List<Book> data) {
           ),
 
 
-          SizedBox(height: 10),
+          SizedBox(height: 5),
           Text(
             buffer.toString().length >7 ? buffer.toString().substring(0,7)+'...':buffer.toString().substring(0,buffer.length-1),
             textAlign: TextAlign.center,

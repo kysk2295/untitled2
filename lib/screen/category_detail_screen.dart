@@ -75,8 +75,8 @@ class _CategoryDetailScreenState extends State<CategoryDetailScreen>{
                         shrinkWrap: true,
                         physics: ScrollPhysics(),
                         scrollDirection: Axis.vertical,
-                        mainAxisSpacing: 30,
-                        childAspectRatio: (1/1.5),
+                        mainAxisSpacing: 10,
+                        childAspectRatio: (1/1.6),
                         primary: false,);
 
                     }

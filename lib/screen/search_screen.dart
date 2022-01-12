@@ -217,8 +217,8 @@ class _SearchScreenState extends State<SearchScreen>{
                         ],
 
                       ),
-                      child: Expanded(child: Image.network(
-                        data[i].imgUrl, fit: BoxFit.fill,)),
+                      child: Image.network(
+                        data[i].imgUrl, fit: BoxFit.fill,),
 
                     ),
                     SizedBox(width: 20,),

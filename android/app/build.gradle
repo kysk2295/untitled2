@@ -59,9 +59,9 @@ android {
     }
     signingConfigs {
         release {
-            storeFile file("tomcat2.jks")
+            storeFile file("pckey.jks")
             storePassword "kysk9241"
-            keyAlias = "tomcat2"
+            keyAlias = "pckey"
             keyPassword "kysk9241"
         }
     }
