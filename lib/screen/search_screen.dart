@@ -7,6 +7,7 @@ import 'detail_screen.dart';
 
 class SearchScreen extends StatefulWidget{
   final List<Book> data;
+
   SearchScreen({required this.data});
 
 
@@ -14,6 +15,8 @@ class SearchScreen extends StatefulWidget{
 }
 
 class _SearchScreenState extends State<SearchScreen>{
+  late Future<List<Book>> fdata;
+  late List<Book> bdata;
   @override
   Widget build(BuildContext context) {
     // TODO: implement build
@@ -85,14 +88,22 @@ class _SearchScreenState extends State<SearchScreen>{
                         ],
                       ),
                     ),
-                    Text(
-                      "재고 없음 안보기 ",
-                      style: TextStyle(
-                        color: Colors.black,
-                        fontSize: 14,
-                        fontFamily: "Roboto",
-                        fontWeight: FontWeight.w500,
-                        letterSpacing: 1.25,
+                    InkWell(
+                      onTap: (){
+                        setState(() {
+                          bdata.removeWhere((element) => element.havers.isEmpty);
+                        });
+
+                      },
+                      child: Text(
+                        "재고 없음 안보기",
+                        style: TextStyle(
+                          color: Colors.black,
+                          fontSize: 14,
+                          fontFamily: "Roboto",
+                          fontWeight: FontWeight.w500,
+                          letterSpacing: 1.25,
+                        ),
                       ),
                     )
                   ],
@@ -102,12 +113,23 @@ class _SearchScreenState extends State<SearchScreen>{
               // Text(widget.data[0].title),
               // Text(widget.data[1].title),
               // Text(widget.data[2].title),
-              ListView(
-                scrollDirection: Axis.vertical,
-                children: makeSearchResults(context,widget.data),
-                shrinkWrap: true,
-                physics: NeverScrollableScrollPhysics(),
-              )
+              FutureBuilder(builder: (context,snapshot){
+                if(snapshot.hasData)
+                return ListView(
+                  children: makeSearchResults(context,bdata),
+                  shrinkWrap: true,
+                  physics: NeverScrollableScrollPhysics(),
+                );
+                else
+                  return Center(child: CircularProgressIndicator(),);
+              }, future: fdata,),
+              //
+              // ListView(
+              //   scrollDirection: Axis.vertical,
+              //   children: makeSearchResults(context,widget.data),
+              //   shrinkWrap: true,
+              //   physics: NeverScrollableScrollPhysics(),
+              // )
 
             ],
           )
@@ -116,46 +138,65 @@ class _SearchScreenState extends State<SearchScreen>{
     );
   }
 
-}
+  @override
+  void initState() {
 
-List<Widget> makeSearchResults(BuildContext context, List<Book> data) {
-  List<Widget> _result=[];
-  var buffer = StringBuffer();
-  for(var i=0;i<data.length;i++)
-    {
+    bdata=[];
+    fdata=check();
+
+    
+  }
+
+  List<Widget> makeSearchResults(BuildContext context, List<Book> data) {
+    List<Widget> _result=[];
+    var buffer = StringBuffer();
+    for(var i=0;i<data.length;i++) {
       buffer.clear();
       data[i].authors.forEach((element) {
-        buffer.write(element+",");
+        buffer.write(element + ",");
       });
+
       _result.add(
         Card(
           elevation: 5,
-          margin: EdgeInsets.symmetric(vertical: 10,horizontal: 20),
+          margin: EdgeInsets.symmetric(vertical: 10, horizontal: 20),
           child: InkWell(
-            onTap: () async{
-              QuerySnapshot snapshot= await
-              FirebaseFirestore.instance.collection('book')
-                  .where('title',isEqualTo: data[i].title)
-                  .where('authors',isEqualTo: data[i].authors).get();
+            onTap: () async {
+              // QuerySnapshot snapshot = await
+              // FirebaseFirestore.instance.collection('book')
+              //     .where('title', isEqualTo: data[i].title)
+              //     .where('authors', isEqualTo: data[i].authors).get();
+              //
+              // if (snapshot.docs.isEmpty) {
+              //   Navigator.of(context).push(MaterialPageRoute(builder: (context) =>
+              //       DetailScreen(book: data[i])));
+              // }
+              // else {
+              //   FirebaseFirestore.instance.collection('book')
+              //       .doc(snapshot.docs[0].id).get().then((value) {
+              //     Map<String, dynamic>? data = value.data() as Map<String,
+              //         dynamic>?;
+              //
+              //     Book book = Book(
+              //         data?['authors'].cast<String>(),
+              //         data?['contents'],
+              //         data?['havers'].cast<String>(),
+              //         data?['publisher'],
+              //         data?['title'],
+              //         data?['imgUrl'],
+              //         data?['like'],
+              //         data?['like_count'],
+              //         data?['possible'],
+              //         data?['likers'].cast<String>());
+              //     Navigator.of(context).push(
+              //         MaterialPageRoute(builder: (context) =>
+              //             DetailScreen(book: book)));
+              //     print(book.havers.toString());
+              //   });
+              // }
 
-              if(snapshot.docs.isEmpty){
-                Navigator.of(context).push(MaterialPageRoute(builder: (context)=>
+              Navigator.of(context).push(MaterialPageRoute(builder: (context) =>
                     DetailScreen(book: data[i])));
-              }
-              else
-              {
-                FirebaseFirestore.instance.collection('book')
-                    .doc(snapshot.docs[0].id).get().then((value) {
-                  Map<String,dynamic>? data=value.data() as Map<String, dynamic>?;
-
-                    Book book = Book(data?['authors'].cast<String>(), data?['contents'], data?['havers'].cast<String>(), data?['publisher'],data?['title'], data?['imgUrl'], data?['like'], data?['like_count'], data?['possible'], data?['likers'].cast<String>());
-                    Navigator.of(context).push(MaterialPageRoute(builder: (context)=>
-                        DetailScreen(book: book)));
-
-                });
-              }
-
-
             },
             child: Padding(
               padding: EdgeInsets.all(10),
@@ -176,45 +217,51 @@ List<Widget> makeSearchResults(BuildContext context, List<Book> data) {
                         ],
 
                       ),
-                       child: Expanded(child: Image.network(data[i].imgUrl,fit: BoxFit.fill,  )),
+                      child: Expanded(child: Image.network(
+                        data[i].imgUrl, fit: BoxFit.fill,)),
 
                     ),
-                     SizedBox(width: 20,),
-                     Column(
-                       crossAxisAlignment: CrossAxisAlignment.start,
-                       children: [
-                         Text(
-                     data[i].title.length > 12 ? data[i].title.substring(0,12)+'...':data[i].title,
-                           style: TextStyle(
-                             color: Colors.black,
-                             fontSize: 18,
-                             fontFamily: "Roboto",
-                             fontWeight: FontWeight.w700,
-                             letterSpacing: 1.25,
-                           ),
-                         ),
-                         SizedBox(height: 10,),
-                         Text(
-                           buffer.toString().length >12 ? buffer.toString().substring(0,12)+'...':buffer.toString().substring(0,buffer.length-1),
-                           textAlign: TextAlign.center,
-                           style: TextStyle(
-                             color: Colors.black,
-                             fontSize: 13,
-                             letterSpacing: 1.25,
-                           ),
-                         ),
-                         SizedBox(height: 3,),
-                         Text(
-                           data[i].publisher,
-                           textAlign: TextAlign.center,
-                           style: TextStyle(
-                             color: Colors.black,
-                             fontSize: 13,
-                             letterSpacing: 1.25,
-                           ),
-                         )
-                       ],
-                     ),
+                    SizedBox(width: 20,),
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          data[i].title.length > 12 ? data[i].title.substring(
+                              0, 12) + '...' : data[i].title,
+                          style: TextStyle(
+                            color: Colors.black,
+                            fontSize: 18,
+                            fontFamily: "Roboto",
+                            fontWeight: FontWeight.w700,
+                            letterSpacing: 1.25,
+                          ),
+                        ),
+                        SizedBox(height: 10,),
+                        Text(
+                          buffer
+                              .toString()
+                              .length > 12 ? buffer.toString().substring(0, 12) +
+                              '...' : buffer.toString().substring(
+                              0, buffer.length - 1),
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            color: Colors.black,
+                            fontSize: 13,
+                            letterSpacing: 1.25,
+                          ),
+                        ),
+                        SizedBox(height: 3,),
+                        Text(
+                          data[i].publisher,
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            color: Colors.black,
+                            fontSize: 13,
+                            letterSpacing: 1.25,
+                          ),
+                        )
+                      ],
+                    ),
 
                   ],
 
@@ -224,10 +271,11 @@ List<Widget> makeSearchResults(BuildContext context, List<Book> data) {
                     child: Container(
                       width: 16,
                       height: 8,
-                      color: Color(0xffe32323),
+                      color: data[i].havers.isEmpty ? Color(0xffe32323) : Color(
+                          0xff5d5fef),
                     ),
                   ),
-            ],
+                ],
 
               ),
             ),
@@ -235,6 +283,53 @@ List<Widget> makeSearchResults(BuildContext context, List<Book> data) {
         ),
       );
     }
+    return _result;
 
-  return _result;
+  }
+  Future<List<Book>> check() async {
+    bdata.clear();
+    for(var i=0;i<widget.data.length;i++)
+    {
+      QuerySnapshot snapshot = await
+      FirebaseFirestore.instance.collection('book')
+          .where('title', isEqualTo: widget.data[i].title)
+          .where('authors', isEqualTo: widget.data[i].authors).get();
+
+      late Book book;
+
+      if (snapshot.docs.isNotEmpty) {
+        FirebaseFirestore.instance.collection('book')
+            .doc(snapshot.docs[0].id).get().then((value) {
+          Map<String, dynamic>? data = value.data() as Map<String, dynamic>?;
+
+          book = Book(
+              data?['authors'].cast<String>(),
+              data?['contents'],
+              data?['havers'].cast<String>(),
+              data?['publisher'],
+              data?['title'],
+              data?['imgUrl'],
+              data?['like'],
+              data?['like_count'],
+              data?['possible'],
+              data?['likers'].cast<String>());
+          
+          bdata.add(book);
+          
+        });
+
+      }
+      else
+        {
+          bdata.add(widget.data[i]);
+        }
+      
+  }
+
+   return bdata;
+
+  }
 }
+
+
+

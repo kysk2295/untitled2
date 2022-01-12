@@ -47,8 +47,8 @@ class _EmailSignUpState extends State<EmailSignUpScreen>{
     //sign up
     try {
       await FirebaseAuth.instance.createUserWithEmailAndPassword(
-          email: _idTextEditController.text,
-          password: _passwordEditController.text
+          email: _idTextEditController.text.trim(),
+          password: _passwordEditController.text.trim()
       );
     } on FirebaseAuthException catch (e) {
       if (e.code == 'weak-password') {
@@ -62,8 +62,8 @@ class _EmailSignUpState extends State<EmailSignUpScreen>{
     //login
     try {
        await FirebaseAuth.instance.signInWithEmailAndPassword(
-          email: _idTextEditController.text,
-          password: _passwordEditController.text
+          email: _idTextEditController.text.trim(),
+          password: _passwordEditController.text.trim()
       );
     } on FirebaseAuthException catch (e) {
       if (e.code == 'user-not-found') {
@@ -81,7 +81,7 @@ class _EmailSignUpState extends State<EmailSignUpScreen>{
         //처음 가입하는 거면
         if(!snapshot.exists)
           {
-            Users users = new Users(_nameTextEditController.text, "https://static.smalljoys.me/2021/05/5741814_img_6675_1621687382.jpg"
+            Users users = new Users(_nameTextEditController.text.trim(), "https://static.smalljoys.me/2021/05/5741814_img_6675_1621687382.jpg"
                 ,user.email.toString() , 0, 0, 0);
             FirebaseFirestore.instance.collection('user').doc(user.uid.toString()).set(users.toMap())
                 .then((value) =>{

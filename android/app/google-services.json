@@ -1,6 +1,7 @@
 {
   "project_info": {
     "project_number": "773217257708",
+    "firebase_url": "https://untitled2-a610e-default-rtdb.firebaseio.com",
     "project_id": "untitled2-a610e",
     "storage_bucket": "untitled2-a610e.appspot.com"
   },
@@ -14,11 +15,35 @@
       },
       "oauth_client": [
         {
+          "client_id": "773217257708-2mjcvcfs7j74r20rfhgsc9brf8r7ufdh.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.untitled2",
+            "certificate_hash": "10ee03c7e48c8a65475df75461ed7053ebab158e"
+          }
+        },
+        {
           "client_id": "773217257708-7bjc7e97l6o6tsl2rdcn29ire941f5d6.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
             "package_name": "com.example.untitled2",
             "certificate_hash": "d58b3a7700e46542061427d5447f18064c517055"
+          }
+        },
+        {
+          "client_id": "773217257708-n5e4o9cgofhqrce0olih0rl7fdjr0a60.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.untitled2",
+            "certificate_hash": "45a7d052ea0b6cf6409c53e63d762d43ecf70d45"
+          }
+        },
+        {
+          "client_id": "773217257708-vc6smajtide4sn3d7rrfija3b5c00tjd.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.untitled2",
+            "certificate_hash": "b25fbe557f78afb97dc8a338bd6a81d0c2cbea68"
           }
         },
         {

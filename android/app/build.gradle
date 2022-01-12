@@ -21,6 +21,12 @@ if (flutterVersionName == null) {
     flutterVersionName = '1.0'
 }
 
+//def keystoreProperties = new Properties()
+//def keystorePropertiesFile = rootProject.file('key.properties')
+//if (keystorePropertiesFile.exists()) {
+//    keystoreProperties.load(new FileInputStream(keystorePropertiesFile))
+//}
+
 apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android'
 apply plugin: 'com.google.gms.google-services'
@@ -51,12 +57,24 @@ android {
         versionName flutterVersionName
         multiDexEnabled true
     }
+    signingConfigs {
+        release {
+            storeFile file("tomcat2.jks")
+            storePassword "kysk9241"
+            keyAlias = "tomcat2"
+            keyPassword "kysk9241"
+        }
+    }
 
     buildTypes {
         release {
             // TODO: Add your own signing config for the release build.
             // Signing with the debug keys for now, so `flutter run --release` works.
-            signingConfig signingConfigs.debug
+            minifyEnabled false
+            useProguard true
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            shrinkResources false
+            signingConfig signingConfigs.release
         }
     }
 }
@@ -71,5 +89,5 @@ dependencies {
 //    implementation platform('com.google.firebase:firebase-bom:29.0.3')
 //    implementation 'com.google.firebase:firebase-analytics-ktx:1.1.15'
 }
-apply plugin: 'com.google.gms.google-services'
+
 

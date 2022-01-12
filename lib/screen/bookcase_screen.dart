@@ -8,6 +8,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_barcode_scanner/flutter_barcode_scanner.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:untitled2/model/Book.dart';
 import 'package:http/http.dart' as http;
 
@@ -136,6 +137,27 @@ class _BookCaseScreenState extends State<BookCaseScreen>{
         .listen((barcode) => print(barcode));
   }
 
+  bool check(String isbn) {
+    int s=0,t=0,chk=0;
+    late bool flag;
+    for(var i =0;i<isbn.length-1;i++){
+      if((i+1)%2==1)
+        s=s+int.parse(isbn.substring(i,i+1))*1;
+      else
+        s=s+int.parse(isbn.substring(i,i+1))*3;
+
+    }
+    t=s%10;
+    chk=(10-t)%10;
+
+    if(chk==int.parse(isbn.substring(12,13)))
+      flag=true;
+    else
+      flag=false;
+
+    return flag;
+  }
+
   Future scan() async{
     String barcodeScanRes;
     try{
@@ -145,8 +167,6 @@ class _BookCaseScreenState extends State<BookCaseScreen>{
           true,
           ScanMode.BARCODE);
 
-
-
     } on PlatformException{
       barcodeScanRes='Failed to get platform version.';
     }
@@ -155,7 +175,13 @@ class _BookCaseScreenState extends State<BookCaseScreen>{
     //이전 바코드를 사용해서 에러가 난다.
     setState(() async {
       _scanBarcode=barcodeScanRes;
-      await getJSONData(_scanBarcode);
+      if(_scanBarcode.isNotEmpty && _scanBarcode.length==13)
+        {
+          if(check(_scanBarcode))
+            await getJSONData(_scanBarcode);
+
+        }
+
       //getJSONData(_scanBarcode).whenComplete(() => _showRegisterDialog());
       print(_scanBarcode);
     });
@@ -168,49 +194,72 @@ class _BookCaseScreenState extends State<BookCaseScreen>{
     var response = await http.get(Uri.parse((url)),
         headers: {
           'Authorization': 'KakaoAK 56802a183308fef11bc11dc21c8d0d68'
+        }).then((value) {
+      if(value.statusCode==200) {
+        data.clear();
+        winks.clear();
+        print(data.toString());
+
+        setState(() {
+          print('asdfasdf');
+          var dataCpmvertedToJSON = json.decode(value.body);
+          List result = dataCpmvertedToJSON['documents'];
+
+          result.forEach((element) {
+            Map obj = element;
+            String title = obj['title'];
+            String content = obj['contents'];
+            String publisher = obj['publisher'];
+            String url = obj['thumbnail'];
+            List<dynamic> authors = obj['authors'];
+
+            winks.add(user!.uid);
+
+            Book book = new Book(
+                authors.cast<String>(),
+                content,
+                winks,
+                publisher,
+                title,
+                url,
+                false,
+                0,
+                false,
+                []);
+
+
+            data.add(book);
+            print(book.publisher);
+            print(data[0].publisher);
+          });
+          _showRegisterDialog();
         });
+        return value.body;
+      }
+      else
+      {
+        Navigator.of(context).pop(true);
+        Fluttertoast.showToast(
+            msg: "isbn이 잘못 입력되었습니다.",
+            toastLength: Toast.LENGTH_SHORT,
+            gravity: ToastGravity.CENTER,
+            timeInSecForIosWeb: 1,
+            backgroundColor: Colors.red,
+            textColor: Colors.white,
+            fontSize: 16.0
+        );
+
+        return "fail";
+      }
+    });
+
+    return "fail";
 
     //print(response.bodyBytes);
     //print(utf8.decode(response.bodyBytes));
 
-    data.clear();
-    winks.clear();
-    print(data.toString());
-
-    setState(() {
-      print('asdfasdf');
-      var dataCpmvertedToJSON = json.decode(response.body);
-      List result = dataCpmvertedToJSON['documents'];
-
-      result.forEach((element) {
-        Map obj = element;
-        String title = obj['title'];
-        String content = obj['contents'];
-        String publisher = obj['publisher'];
-        String url = obj['thumbnail'];
-        List<dynamic> authors = obj['authors'];
-
-        winks.add(user!.uid);
-
-        Book book = new Book(
-            authors.cast<String>(),
-            content,
-            winks,
-            publisher,
-            title,
-            url,
-            false,
-            0,
-            false,[]);
 
 
-        data.add(book);
-        print(book.publisher);
-        print(data[0].publisher);
-      });
-      _showRegisterDialog();
-    });
-    return response.body;
   }
 
   @override

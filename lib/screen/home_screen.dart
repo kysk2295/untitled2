@@ -9,6 +9,8 @@ import 'package:flutter_typeahead/flutter_typeahead.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:untitled2/model/Book.dart';
 import 'package:untitled2/model/Category.dart';
+import 'package:untitled2/screen/category_detail_screen.dart';
+import 'package:untitled2/screen/category_screen.dart';
 import 'package:untitled2/screen/detail_screen.dart';
 
 import 'package:untitled2/screen/login_screen.dart';
@@ -57,6 +59,20 @@ class _HomeScreenState extends State<HomeScreen> {
     book_title=[];
     data2=[];
 
+    list.clear();
+
+    FirebaseFirestore.instance.collection('category')
+        .get().then((QuerySnapshot value) {
+      value.docs.forEach((element) {
+
+        setState(() {
+          Category category = Category(element['name'],element['id'], element['book_cnt'], element['imgurl']);
+          list.add(category);
+        });
+
+      });
+    });
+
     // setState(() {
     //   FirebaseFirestore.instance.collection('book')
     //       .get().then((QuerySnapshot querySnapshot) {
@@ -103,7 +119,7 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget build(BuildContext context) {
 
 
-     Future  getJSONData(String pattern) async {
+     Future getJSONData(String pattern) async {
       var url = "https://dapi.kakao.com/v3/search/book?target=title&query=${pattern}";
       var response = await http.get(Uri.parse((url)),
           headers: {
@@ -116,6 +132,7 @@ class _HomeScreenState extends State<HomeScreen> {
         data2.clear();
         var dataCpmvertedToJSON = json.decode(response.body);
         List result = dataCpmvertedToJSON['documents'];
+
         result.forEach((element) {
           Map obj = element;
           String title = obj['title'];
@@ -125,11 +142,27 @@ class _HomeScreenState extends State<HomeScreen> {
           List<dynamic> authors = obj['authors'];
 
          // Book books = Book(authors.cast<String>(), content, [], publisher, title, url, false, 0, possible, likers)
-          Book books = Book(authors.cast<String>(), content, [], publisher, title, url, false, 0, false,[]);
-          data2.add(books);
+         late Book books;
 
           book_title.add({"title":title});
 
+            books=Book(authors.cast<String>(), content, [], publisher, title, url, false, 0, false,[]);
+
+            //FirebaseFirestore.instance.
+
+
+
+            // FirebaseFirestore.instance.collection('book')
+            //     .doc(snapshot.docs[0].id).get().then((value) {
+            //   Map<String,dynamic>? data=value.data() as Map<String, dynamic>?;
+            //   setState(() {
+            //     books = Book(data?['authors'].cast<String>(), data?['contents'], data?['havers'].cast<String>(), data?['publisher'],data?['title'], data?['imgUrl'], data?['like'], data?['like_count'], data?['possible'], data?['likers'].cast<String>());
+            //
+            //   });
+            // });
+
+
+          data2.add(books);
           // Book book = new Book(
           //     authors.cast<String>(),
           //     content,
@@ -169,6 +202,9 @@ class _HomeScreenState extends State<HomeScreen> {
                   textInputAction: TextInputAction.search,
                   onSubmitted: (value) {
                     Navigator.of(context).push(MaterialPageRoute(builder: (context)=>SearchScreen(data: data2,)));
+                    setState(() {
+                      _filter.text="";
+                    });
                   },
                   focusNode: focusNode,
                   onChanged: (text) {},
@@ -227,8 +263,12 @@ class _HomeScreenState extends State<HomeScreen> {
 
             ) : Container();
 
+
           },
           onSuggestionSelected: (dynamic suggestion) async {
+
+            // Navigator.of(context).push(MaterialPageRoute(builder: (context)=>
+            //     DetailScreen(book: suggestion)));
 
                   QuerySnapshot snapshot= await
                   FirebaseFirestore.instance.collection('book')
@@ -287,7 +327,7 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
 
               Padding(
-                padding: const EdgeInsets.fromLTRB(25, 0, 40, 0),
+                padding: const EdgeInsets.fromLTRB(25, 0, 10, 0),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   mainAxisSize: MainAxisSize.max,
@@ -296,37 +336,22 @@ class _HomeScreenState extends State<HomeScreen> {
                       '추천', style: TextStyle(color: Colors.black, fontSize: 18,
                         fontWeight: FontWeight.bold),),
 
-                    InkWell(onTap: () {},
+
+                         TextButton(onPressed: () {
+                           Navigator.of(context).push(MaterialPageRoute(builder: (context)=> CategoryScreen()));
+                         },
                         child: Text(">>", style: TextStyle(
-                            color: Color(0xffaeaeae), fontSize: 18)))
+                            color: Color(0xffaeaeae), fontSize: 18)),)
                   ],
                 ),
               ),
               Container(
                   height: 170,
                   //파이어베이스 데이터를 읽을 때 streambuilder 사용한다.
-                  child: StreamBuilder<QuerySnapshot>(
-                    stream: FirebaseFirestore.instance.collection('category')
-                        .limit(3).snapshots(),
-                    builder: (BuildContext context,
-                        AsyncSnapshot<QuerySnapshot> snapshot) {
-                      if (!snapshot.hasData) {
-                        print(snapshot.data?.docs);
-                        print(snapshot.error);
-                        return Text('추천작이 없습니다.');
-                      }
-                      print('hi');
-                      list.clear();
-                      print(snapshot.data?.docs.length);
-                      for (int i = 0; i < snapshot.data!.docs.length; i++) {
-                        var a = snapshot.data!.docs[i];
-                        Category category = new Category(a['name'], a['id']);
-                        list.add(category);
-                        //print(a['name']);
-                      }
-                      return ListView(children: makeBoxImages(context, list),
-                        scrollDirection: Axis.horizontal,);
-                    },
+                  child: ListView(
+                    scrollDirection: Axis.horizontal,
+                    shrinkWrap: true,
+                    children: makeBoxImages(context, list),
                   )
               ),
               Padding(
@@ -421,6 +446,7 @@ class _HomeScreenState extends State<HomeScreen> {
 //
 //     );
 //   }
+
  }
 
 
@@ -506,49 +532,53 @@ List<Widget> makePopularImages(BuildContext context, List<Book> data) {
 
   return _result;
 }
-
-
 List<Widget> makeBoxImages(BuildContext context, List<Category> list)  {
   List<Widget> _result=[];
+
+
   for(var i=0;i<list.length;i++){
-    _result.add(InkWell(
-      onTap: (){
-      },
-      child: Container(
-        padding: EdgeInsets.fromLTRB(8,25,8,10),
-        margin: EdgeInsets.only(left: 20),
+    _result.add(Container(
+      padding: EdgeInsets.fromLTRB(8,25,8,10),
+      margin: EdgeInsets.only(left: 20),
+      child: InkWell(
+        onTap: (){
+          Navigator.of(context).push(MaterialPageRoute(builder: (context)=>CategoryDetailScreen(list[i])));
+        },
         child: Column(
           children: [
-          Container(
-          width: 85,
-          height: 85,
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(5),
-            color: Color(0xffc4c4c4),
-          ),
-        ),
-          SizedBox(height: 15,),
-          Align(
-            alignment: Alignment.centerLeft,
-            child: SizedBox(
-              child: Text(
-                list[i].name,
-                textAlign: TextAlign.start,
-                style: TextStyle(
-                  color: Colors.black,
-                  fontSize: 14,
-                  fontWeight: FontWeight.bold
-                ),
+            Container(
+              width: 85,
+              height: 85,
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(5),
+                image: DecorationImage(image: NetworkImage(list[i].imgurl), fit: BoxFit.fill),
               ),
             ),
-          )
+            SizedBox(height: 15,),
+            Align(
+              alignment: Alignment.centerLeft,
+              child: SizedBox(
+                child: Text(
+                  list[i].name,
+                  textAlign: TextAlign.start,
+                  style: TextStyle(
+                      color: Colors.black,
+                      fontSize: 14,
+                      fontWeight: FontWeight.bold
+                  ),
+                ),
+              ),
+            )
 
           ],
         ),
       ),
-    ));
+    ),
+    );
   }
 
   return _result;
 
 }
+
+
